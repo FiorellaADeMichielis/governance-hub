@@ -1,0 +1,7 @@
+export enum FlowStatus {
+  PENDING = 'PENDING',
+  APPROVED = 'APPROVED',
+  REJECTED = 'REJECTED',
+  BLOCKED = 'BLOCKED',
+  RISKY = 'RISKY',
+}
