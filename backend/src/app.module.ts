@@ -2,17 +2,15 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { envValidationSchema } from './config/env.validations';
+import { FlowsModule } from './modules/flow/flows.module'; 
 
 @Module({
   imports: [
-    // 1. Módulo de Configuración Global (Fail Fast)
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: '../.env', 
+      envFilePath: '../.env',
       validationSchema: envValidationSchema,
     }),
-    
-    // 2. Conexión a PostgreSQL segura
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -24,10 +22,10 @@ import { envValidationSchema } from './config/env.validations';
         password: configService.get<string>('DATABASE_PASSWORD'),
         database: configService.get<string>('DATABASE_NAME'),
         autoLoadEntities: true,
-        // synchronize en true solo para desarrollo temprano.
         synchronize: configService.get<string>('NODE_ENV') !== 'production',
       }),
     }),
+    FlowsModule,
   ],
   controllers: [],
   providers: [],
