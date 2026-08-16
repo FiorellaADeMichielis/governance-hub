@@ -3,6 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { envValidationSchema } from './config/env.validations';
 import { FlowsModule } from './modules/flow/flows.module'; 
+import { EventsModule } from './modules/events/events.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { FlowsModule } from './modules/flow/flows.module';
         synchronize: configService.get<string>('NODE_ENV') !== 'production',
       }),
     }),
+    EventsModule,
     FlowsModule,
   ],
   controllers: [],
