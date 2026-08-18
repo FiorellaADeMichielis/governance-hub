@@ -4,7 +4,9 @@ import { ReviewFlowUseCase } from '../application/use-cases/review-flow.use-case
 import { RegisterFlowDto } from './dtos/register-flow.dto';
 import { ReviewFlowDto } from './dtos/review-flow.dto';
 import { GetFlowsUseCase } from '../application/use-cases/get-flows.use-case';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Flows')
 @Controller('flows')
 export class FlowsController {
   constructor(
