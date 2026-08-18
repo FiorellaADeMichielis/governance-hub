@@ -1,6 +1,7 @@
 import { Module, Global } from '@nestjs/common';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { EventsController } from './events.controller';
 
 @Global()
 @Module({
@@ -23,6 +24,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
       },
     ]),
   ],
+  controllers: [EventsController],
   exports: [ClientsModule],
 })
 export class EventsModule {}

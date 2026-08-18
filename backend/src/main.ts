@@ -1,31 +1,41 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { MicroserviceOptions, Transport } from '@nestjs/microservices'; // <-- NUEVO
 import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   
-  // Habilitar validación global de DTOs
+  // 1. Configurar Microservicio (RabbitMQ)
+  app.connectMicroservice<MicroserviceOptions>({
+    transport: Transport.RMQ,
+    options: {
+      urls: [process.env.RABBITMQ_URL || 'amqp://guest:guest@localhost:5672'],
+      queue: 'governance_flows_queue',
+      queueOptions: {
+        durable: true,
+      },
+    },
+  });
+
   app.useGlobalPipes(new ValidationPipe({
     whitelist: true,
     forbidNonWhitelisted: true,
   }));
 
-  //CONFIGURACIÓN DE SWAGGER 
   const config = new DocumentBuilder()
     .setTitle('Governance Hub API')
     .setDescription('API para la detección y gestión de flujos de Shadow IT')
     .setVersion('1.0')
-    .addTag('Flows') 
+    .addTag('Flows')
     .build();
     
   const document = SwaggerModule.createDocument(app, config);
-  
-  // documentación disponible en la ruta: /api/docs
   SwaggerModule.setup('api/docs', app, document);
-  // --------------------------------
 
-  await app.listen(3000);
+  // 2. Arrancar Microservicio y HTTP
+  await app.startAllMicroservices(); // RabbitMQ
+  await app.listen(3000);            // HTTP
 }
 bootstrap();
