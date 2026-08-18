@@ -6,6 +6,7 @@ import { FLOW_REPOSITORY } from './domain/repositories/flow.repository.interface
 import { RegisterFlowUseCase } from './application/use-cases/register-flow.use-case';
 import { FlowsController } from './presentation/flows.controller';
 import { ReviewFlowUseCase } from './application/use-cases/review-flow.use-case';
+import { GetFlowsUseCase } from './application/use-cases/get-flows.use-case';
 
 @Module({
   imports: [TypeOrmModule.forFeature([FlowOrmEntity])],
@@ -16,7 +17,8 @@ import { ReviewFlowUseCase } from './application/use-cases/review-flow.use-case'
       useClass: FlowRepository,
     },
     RegisterFlowUseCase,
-    ReviewFlowUseCase, 
+    ReviewFlowUseCase,
+    GetFlowsUseCase,
   ],
   exports: [FLOW_REPOSITORY],
 })
