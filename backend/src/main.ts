@@ -35,6 +35,7 @@ async function bootstrap() {
   SwaggerModule.setup('api/docs', app, document);
 
   // 2. Arrancar Microservicio y HTTP
+  app.enableCors(); // Habilitar CORS para permitir solicitudes desde el frontend
   await app.startAllMicroservices(); // RabbitMQ
   await app.listen(3000);            // HTTP
 }
