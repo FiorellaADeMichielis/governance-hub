@@ -5,16 +5,18 @@ import { FlowRepository } from './infrastructure/persistence/flow.repository';
 import { FLOW_REPOSITORY } from './domain/repositories/flow.repository.interface';
 import { RegisterFlowUseCase } from './application/use-cases/register-flow.use-case';
 import { FlowsController } from './presentation/flows.controller';
+import { ReviewFlowUseCase } from './application/use-cases/review-flow.use-case';
 
 @Module({
   imports: [TypeOrmModule.forFeature([FlowOrmEntity])],
-  controllers: [FlowsController], // <-- Controlador registrado
+  controllers: [FlowsController],
   providers: [
     {
       provide: FLOW_REPOSITORY,
       useClass: FlowRepository,
     },
-    RegisterFlowUseCase, // <-- Caso de uso registrado
+    RegisterFlowUseCase,
+    ReviewFlowUseCase, 
   ],
   exports: [FLOW_REPOSITORY],
 })
