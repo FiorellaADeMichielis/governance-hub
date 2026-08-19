@@ -1,7 +1,7 @@
 export enum FlowStatus {
   PENDING = 'PENDING',
   APPROVED = 'APPROVED',
-  REJECTED = 'REJECTED',
   BLOCKED = 'BLOCKED',
-  RISKY = 'RISKY',
+  UNDER_REVIEW = 'UNDER_REVIEW', 
+  RISKY = 'RISKY'
 }

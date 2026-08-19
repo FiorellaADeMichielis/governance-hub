@@ -41,5 +41,17 @@ describe('RegisteredFlow Entity', () => {
       flow.blockFlow('Violación de seguridad');
     }).toThrow('Cannot block an already approved flow without prior review.'); 
   });
-
+  // Test 4: Comprobar el flujo de auditoría
+  it('deberia permitir poner en revision un flujo aprobado y luego bloquearlo', () => {
+    // 1. Arrange: Flujo aprobado
+    const flow = new RegisteredFlow('123', 'dropbox', 'it', FlowStatus.APPROVED, RiskLevel.LOW, {});
+    // 2. Act: Lo pone en revisión
+    flow.markForReview('Sospecha de fuga de datos');
+    // 3. Assert 1: Verifica el cambio de estado
+    expect(flow.getStatus()).toBe(FlowStatus.UNDER_REVIEW);
+    // 4. Act: Intenta bloquearlo
+    flow.blockFlow('Fuga de datos confirmada');
+    // 5. Assert 2: Verifica que se pudo bloquear exitosamente
+    expect(flow.getStatus()).toBe(FlowStatus.BLOCKED);
+  });
 });
