@@ -1,6 +1,5 @@
 import { StatusBadge } from './StatusBadge';
 
-// La interfaz debe coincidir con los datos
 export interface Flow {
   id: string;
   platformId: string;
@@ -9,13 +8,25 @@ export interface Flow {
   riskLevel: string;
 }
 
-interface FlowTableProps {
+export interface FlowTableProps {
   flows: Flow[];
   isLoading: boolean;
-  onReviewAction: (id: string, action: 'APPROVE' | 'BLOCK') => void;
+  onReviewAction: (id: string, action: 'APPROVE' | 'BLOCK' | 'MARK_REVIEW') => void;
+  currentPage: number;
+  totalPages: number;
+  onNextPage: () => void;
+  onPrevPage: () => void;
 }
 
-export const FlowTable = ({ flows, isLoading, onReviewAction }: FlowTableProps) => {
+export const FlowTable = ({ 
+  flows, 
+  isLoading, 
+  onReviewAction,
+  currentPage,
+  totalPages,
+  onNextPage,
+  onPrevPage
+}: FlowTableProps) => {
   return (
     <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
       <table className="w-full text-left border-collapse">
@@ -64,6 +75,28 @@ export const FlowTable = ({ flows, isLoading, onReviewAction }: FlowTableProps) 
           )}
         </tbody>
       </table>
+
+      <div className="flex items-center justify-between px-6 py-4 border-t border-slate-200 bg-slate-50">
+        <span className="text-sm text-slate-600">
+          Página <span className="font-medium text-slate-900">{currentPage}</span> de <span className="font-medium text-slate-900">{totalPages || 1}</span>
+        </span>
+        <div className="flex gap-2">
+          <button 
+            onClick={onPrevPage} 
+            disabled={currentPage === 1}
+            className="px-3 py-1 bg-white border border-slate-300 rounded hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium text-slate-700 transition-colors"
+          >
+            Anterior
+          </button>
+          <button 
+            onClick={onNextPage} 
+            disabled={currentPage >= totalPages || totalPages === 0}
+            className="px-3 py-1 bg-white border border-slate-300 rounded hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium text-slate-700 transition-colors"
+          >
+            Siguiente
+          </button>
+        </div>
+      </div>
     </div>
   );
 };

@@ -1,12 +1,12 @@
-import { Controller, Post, Body, Get, Patch, Param, UseGuards } from '@nestjs/common';
+import { Controller, Post, Body, Get, Patch, Param, UseGuards, Query } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiTags } from '@nestjs/swagger';
-
 import { RegisterFlowUseCase } from '../application/use-cases/register-flow.use-case';
 import { ReviewFlowUseCase } from '../application/use-cases/review-flow.use-case';
 import { GetFlowsUseCase } from '../application/use-cases/get-flows.use-case';
 import { RegisterFlowDto } from './dtos/register-flow.dto';
 import { ReviewFlowDto } from './dtos/review-flow.dto';
+import { GetFlowsDto } from './dtos/get-flows.dto';
 
 @ApiTags('Flows')
 @Controller('flows')
@@ -18,18 +18,24 @@ export class FlowsController {
   ) {}
 
   @Get()
-  async getAllFlows() {
-    const flows = await this.getFlowsUseCase.execute();
-  
-    // Mapea las entidades puras a objetos planos para la respuesta JSON
-    return flows.map(flow => ({
-      id: flow.getId(),
-      platformId: (flow as any).platformId, // Acceso rápido para lectura
-      departmentId: (flow as any).departmentId,
-      status: flow.getStatus(),
-      riskLevel: flow.getRiskLevel(),
-      createdAt: (flow as any).createdAt,
-    }));
+  async getAllFlows(@Query() query: GetFlowsDto) {
+    // 1. Guardamos el resultado completo en una variable "result"
+    const result = await this.getFlowsUseCase.execute(
+      query.page,
+      query.limit,
+      query.status
+    );
+    return {
+      data: result.data.map(flow => ({
+        id: flow.getId(),
+        platformId: (flow as any).platformId, 
+        departmentId: (flow as any).departmentId,
+        status: flow.getStatus(),
+        riskLevel: flow.getRiskLevel(),
+        createdAt: (flow as any).createdAt,
+      })),
+      meta: result.meta 
+    };
   }
 
   @Post()
