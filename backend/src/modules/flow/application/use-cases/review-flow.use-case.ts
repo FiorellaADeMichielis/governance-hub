@@ -15,8 +15,6 @@ export class ReviewFlowUseCase {
     if (!flow) {
       throw new NotFoundException(`Flow with ID ${id} not found`);
     }
-
-    // Envolvemos las acciones del dominio en un try/catch
     try {
       if (dto.action === 'APPROVE') {
         flow.approveFlow();
@@ -26,7 +24,7 @@ export class ReviewFlowUseCase {
         flow.markForReview(dto.reason || 'Sent to manual review');
       }
     } catch (error: any) {
-      // Atrapamos el error genérico del dominio y lo devolvemos como un 400 Bad Request
+      // Atrapmos el error genérico del dominio como un 400 Bad Request
       throw new BadRequestException(error.message);
     }
 
