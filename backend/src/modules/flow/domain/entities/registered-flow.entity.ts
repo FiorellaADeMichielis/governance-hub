@@ -36,14 +36,12 @@ export class RegisteredFlow {
   getStatus(): FlowStatus { return this.status; }
   getRiskLevel(): RiskLevel { return this.riskLevel; }
 
-  // ======================================================
   // Métodos de Dominio (Comportamiento y Reglas de Negocio)
-  // ======================================================
   
-  // 1. Poner en revisión un flujo previamente aprobado
+  // 1. Poner en revisión un flujo previamente aprobado o bloqueado (Enfoque Flexible)
   public markForReview(reason: string): void {
-    if (this.status !== FlowStatus.APPROVED) {
-      throw new Error('Solo los flujos aprobados pueden ser puestos en revisión.');
+    if (this.status !== FlowStatus.APPROVED && this.status !== FlowStatus.BLOCKED) {
+      throw new Error('Solo los flujos aprobados o bloqueados pueden ser puestos en revisión.');
     }
     this.status = FlowStatus.UNDER_REVIEW;
     this.metadata['reviewReason'] = reason;
@@ -60,10 +58,10 @@ export class RegisteredFlow {
     this.markAsUpdated();
   }
 
-  // 3. Aprobar
+  // 3. Aprobar (no se puede aprobar directo si está bloqueado, debe pasar por revisión)
   public approveFlow(): void {
     if (this.status === FlowStatus.BLOCKED) {
-      throw new Error('Cannot approve a blocked flow directly.');
+      throw new Error('Cannot approve a blocked flow directly. It must be reviewed first.');
     }
     this.status = FlowStatus.APPROVED;
     this.markAsUpdated();

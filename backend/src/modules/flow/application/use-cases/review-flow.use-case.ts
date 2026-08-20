@@ -1,8 +1,7 @@
-import { Injectable, Inject, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, Inject } from '@nestjs/common';
 import { FLOW_REPOSITORY } from '../../domain/repositories/flow.repository.interface';
 import type { IFlowRepository } from '../../domain/repositories/flow.repository.interface';
-import { RegisteredFlow } from '../../domain/entities/registered-flow.entity';
-import { ReviewFlowDto, ReviewAction } from '../../presentation/dtos/review-flow.dto';
+import { ReviewFlowDto } from '../../presentation/dtos/review-flow.dto';
 
 @Injectable()
 export class ReviewFlowUseCase {
@@ -10,25 +9,27 @@ export class ReviewFlowUseCase {
     @Inject(FLOW_REPOSITORY)
     private readonly flowRepository: IFlowRepository,
   ) {}
-  async execute(flowId: string, dto: ReviewFlowDto): Promise<RegisteredFlow> {
-    // 1. Buscar entidad existente
-    const flow = await this.flowRepository.findById(flowId);
+
+  async execute(id: string, dto: ReviewFlowDto) {
+    const flow = await this.flowRepository.findById(id);
     if (!flow) {
-      throw new NotFoundException(`Flow with ID ${flowId} not found`);
+      throw new NotFoundException(`Flow with ID ${id} not found`);
     }
-    // 2. Ejecutar lógica de dominio interceptando posibles errores de negocio
+
+    // Envolvemos las acciones del dominio en un try/catch
     try {
-      if (dto.action === ReviewAction.APPROVE) {
+      if (dto.action === 'APPROVE') {
         flow.approveFlow();
-      } else if (dto.action === ReviewAction.BLOCK) {
-        const reason = dto.reason || 'No reason provided';
-        flow.blockFlow(reason);
+      } else if (dto.action === 'BLOCK') {
+        flow.blockFlow(dto.reason || 'Blocked by admin');
+      } else if (dto.action === 'MARK_REVIEW') {
+        flow.markForReview(dto.reason || 'Sent to manual review');
       }
     } catch (error: any) {
-      // Si el dominio rechaza el cambio
+      // Atrapamos el error genérico del dominio y lo devolvemos como un 400 Bad Request
       throw new BadRequestException(error.message);
     }
-    // 3. Guardar el estado mutado
+
     return await this.flowRepository.save(flow);
   }
 }

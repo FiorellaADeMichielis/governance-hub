@@ -5,6 +5,7 @@ import { IFlowRepository } from '../../domain/repositories/flow.repository.inter
 import { RegisteredFlow } from '../../domain/entities/registered-flow.entity';
 import { FlowOrmEntity } from './orm-entities/flow.orm-entity';
 import { FlowMapper } from './mappers/flow.mapper';
+import { FlowStatus } from '../../domain/enums/flow-status.enum'; // <-- Nueva importación
 
 @Injectable()
 export class FlowRepository implements IFlowRepository {
@@ -31,5 +32,21 @@ export class FlowRepository implements IFlowRepository {
   async findAll(): Promise<RegisteredFlow[]> {
     const ormEntities = await this.ormRepository.find();
     return ormEntities.map((entity) => FlowMapper.toDomain(entity));
+  }
+
+  async findWithFilters(skip: number, take: number, status?: FlowStatus): Promise<{ flows: RegisteredFlow[]; total: number }> {
+    const whereCondition = status ? { status } : {};
+
+    // TypeORM hace la consulta paginada y cuenta el total en un solo viaje a la base de datos
+    const [ormEntities, total] = await this.ormRepository.findAndCount({
+      where: whereCondition,
+      skip: skip,
+      take: take,
+      order: { createdAt: 'DESC' }, 
+    });
+
+    const flows = ormEntities.map((entity) => FlowMapper.toDomain(entity));
+
+    return { flows, total };
   }
 }

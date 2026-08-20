@@ -53,22 +53,35 @@ export const FlowTable = ({
                   <StatusBadge status={flow.status} />
                 </td>
                 <td className="p-4 text-right space-x-2">
-                  {flow.status === 'PENDING' && (
+                  
+                  {/* Regla 1: Si está PENDING o UNDER_REVIEW, se puede Aprobar o Bloquear */}
+                  {(flow.status === 'PENDING' || flow.status === 'UNDER_REVIEW') && (
+                    <>
+                      <button 
+                        onClick={() => onReviewAction(flow.id, 'APPROVE')}
+                        className="px-3 py-1.5 bg-indigo-900 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition-colors"
+                      >
+                        Aprobar
+                      </button>
+                      <button 
+                        onClick={() => onReviewAction(flow.id, 'BLOCK')}
+                        className="px-3 py-1.5 bg-red-100 text-red-700 text-sm font-medium rounded-lg hover:bg-red-200 transition-colors"
+                      >
+                        Bloquear
+                      </button>
+                    </>
+                  )}
+
+                  {/* Regla Unificada: Si está Aprobado o Bloqueado, se puede mandar a revisión */}
+                  {(flow.status === 'APPROVED' || flow.status === 'BLOCKED') && (
                     <button 
-                      onClick={() => onReviewAction(flow.id, 'APPROVE')}
-                      className="px-3 py-1.5 bg-indigo-900 text-white text-sm font-medium rounded-lg hover:bg-indigo-700"
+                      onClick={() => onReviewAction(flow.id, 'MARK_REVIEW')}
+                      className="px-3 py-1.5 bg-amber-50 text-amber-700 text-sm font-medium rounded-lg hover:bg-amber-100 transition-colors border border-amber-200"
                     >
-                      Aprobar
+                      Poner en Revisión
                     </button>
                   )}
-                  {flow.status !== 'BLOCKED' && (
-                    <button 
-                      onClick={() => onReviewAction(flow.id, 'BLOCK')}
-                      className="px-3 py-1.5 bg-slate-100 text-slate-700 text-sm font-medium rounded-lg hover:bg-slate-200"
-                    >
-                      Bloquear
-                    </button>
-                  )}
+                  
                 </td>
               </tr>
             ))
@@ -76,6 +89,7 @@ export const FlowTable = ({
         </tbody>
       </table>
 
+      {/* Paginación */}
       <div className="flex items-center justify-between px-6 py-4 border-t border-slate-200 bg-slate-50">
         <span className="text-sm text-slate-600">
           Página <span className="font-medium text-slate-900">{currentPage}</span> de <span className="font-medium text-slate-900">{totalPages || 1}</span>
