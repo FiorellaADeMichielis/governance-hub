@@ -6,7 +6,6 @@ function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isChecking, setIsChecking] = useState(true);
 
-  // Al cargar la app, revisamos si ya hay un token guardado
   useEffect(() => {
     const token = localStorage.getItem('accessToken');
     if (token) {
