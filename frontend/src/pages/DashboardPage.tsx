@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { io } from 'socket.io-client'; // <-- 1. IMPORTAMOS EL CLIENTE WS
 import { FlowTable, type Flow } from '../components/FlowTable';
 import { ConfirmationModal } from '../components/ConfirmationModal';
 import { Sidebar } from '../components/layouts/Sidebar';
@@ -19,12 +20,15 @@ export const DashboardPage = ({ onLogout }: DashboardPageProps) => {
   const [modalConfig, setModalConfig] = useState<{ isOpen: boolean; flowId: string; action: 'APPROVE' | 'BLOCK' | 'MARK_REVIEW' | null; platformId: string; }>({ isOpen: false, flowId: '', action: null, platformId: '' });
   const [isDark, setIsDark] = useState(true);
 
+  // <-- 2. NUEVO ESTADO WS: Trigger para forzar la recarga
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+
   // --- 2. LÓGICA DERIVADA ---
   const totalFlows = flows.length;
   const blockedFlows = flows.filter(f => f.status === 'BLOCKED').length;
   const riskyFlows = flows.filter(f => f.status === 'RISKY' || f.status === 'UNDER_REVIEW').length;
 
-  // --- 3. EFECTOS (FETCH Y TEMA) ---
+  // --- 3. EFECTOS (TEMA Y WEBSOCKETS) ---
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme');
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -35,6 +39,21 @@ export const DashboardPage = ({ onLogout }: DashboardPageProps) => {
     else document.documentElement.classList.remove('dark');
   }, []);
 
+  // <-- 3. NUEVO EFECTO WS: Conexión al Gateway
+  useEffect(() => {
+    const socket = io('http://localhost:3000'); 
+
+    socket.on('flow_updated', () => {
+      console.log('📣 ¡Actualización en tiempo real recibida!');
+      setRefreshTrigger(prev => prev + 1); 
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
+
+  // --- 4. EFECTO FETCH (AHORA ESCUCHA AL TRIGGER) ---
   useEffect(() => {
     const fetchFlows = async () => {
       setLoading(true);
@@ -60,9 +79,9 @@ export const DashboardPage = ({ onLogout }: DashboardPageProps) => {
       }
     };
     fetchFlows();
-  }, [page, statusFilter, onLogout]);
+  }, [page, statusFilter, onLogout, refreshTrigger]); // <-- 4. Agregamos refreshTrigger a las dependencias
 
-  // --- 4. MANEJADORES DE EVENTOS ---
+  // --- 5. MANEJADORES DE EVENTOS ---
   const toggleTheme = () => {
     const newTheme = !isDark;
     setIsDark(newTheme);
@@ -102,7 +121,7 @@ export const DashboardPage = ({ onLogout }: DashboardPageProps) => {
     }
   };
 
-  // --- 5. RENDERIZADO COMPUESTO ---
+  // --- 6. RENDERIZADO COMPUESTO ---
   return (
     <DashboardLayout 
       sidebar={<Sidebar isDark={isDark} toggleTheme={toggleTheme} onLogout={onLogout} />}

@@ -12,11 +12,12 @@ async function bootstrap() {
   app.enableCors();
 
   // Configura el Consumidor de RabbitMQ
-  app.connectMicroservice<MicroserviceOptions>({
+  app.connectMicroservice({
     transport: Transport.RMQ,
     options: {
-      urls: ['amqp://localhost:5672'], // URL de Docker
-      queue: 'flows_ingestion_queue',  // mismo nombre de cola que en el module
+      urls: ['amqp://localhost:5672'],
+      queue: 'governance_flows_queue',
+      noAck: false, 
       queueOptions: {
         durable: true,
       },
