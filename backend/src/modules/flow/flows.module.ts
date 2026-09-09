@@ -10,8 +10,11 @@ import { FlowsController } from './presentation/flows.controller';
 import { ReviewFlowUseCase } from './application/use-cases/review-flow.use-case';
 import { GetFlowsUseCase } from './application/use-cases/get-flows.use-case';
 
+import { AuthModule } from '../auth/auth.module';
+
 @Module({
   imports: [
+    AuthModule,
     TypeOrmModule.forFeature([FlowOrmEntity]),
     ClientsModule.register([
       {

@@ -16,9 +16,21 @@ export interface FlowTableProps {
   totalPages: number;
   onNextPage: () => void;
   onPrevPage: () => void;
+  userRole?: 'ADMIN' | 'USER';
 }
 
-export const FlowTable = ({ flows, isLoading, onReviewAction, currentPage, totalPages, onNextPage, onPrevPage }: FlowTableProps) => {
+export const FlowTable = ({ 
+  flows, 
+  isLoading, 
+  onReviewAction, 
+  currentPage, 
+  totalPages, 
+  onNextPage, 
+  onPrevPage,
+  userRole = 'USER',
+}: FlowTableProps) => {
+  const isAdmin = userRole === 'ADMIN';
+
   return (
     <div className="bg-white dark:bg-stone-800 rounded-xl shadow-sm dark:shadow-md border border-stone-200 dark:border-stone-700 overflow-hidden transition-colors">
       <table className="w-full text-left border-collapse">
@@ -42,33 +54,39 @@ export const FlowTable = ({ flows, isLoading, onReviewAction, currentPage, total
                 <td className="p-4 text-stone-600 dark:text-stone-400 capitalize">{flow.departmentId}</td>
                 <td className="p-4"><StatusBadge status={flow.status} /></td>
                 <td className="p-4 text-right space-x-2">
-                  
-                  {(flow.status === 'PENDING' || flow.status === 'UNDER_REVIEW') && (
+                  {isAdmin ? (
                     <>
-                      <button 
-                        onClick={() => onReviewAction(flow.id, 'APPROVE')}
-                        className="px-3 py-1.5 bg-green-50 text-green-700 border-green-200 dark:bg-green-500/10 dark:text-green-400 border dark:border-green-500/20 text-xs font-semibold rounded-lg hover:bg-green-100 dark:hover:bg-green-500/20 transition-colors"
-                      >
-                        Aprobar
-                      </button>
-                      <button 
-                        onClick={() => onReviewAction(flow.id, 'BLOCK')}
-                        className="px-3 py-1.5 bg-red-50 text-red-700 border-red-200 dark:bg-red-500/10 dark:text-red-400 border dark:border-red-500/20 text-xs font-semibold rounded-lg hover:bg-red-100 dark:hover:bg-red-500/20 transition-colors"
-                      >
-                        Bloquear
-                      </button>
-                    </>
-                  )}
+                      {(flow.status === 'PENDING' || flow.status === 'UNDER_REVIEW') && (
+                        <>
+                          <button 
+                            onClick={() => onReviewAction(flow.id, 'APPROVE')}
+                            className="px-3 py-1.5 bg-green-50 text-green-700 border-green-200 dark:bg-green-500/10 dark:text-green-400 border dark:border-green-500/20 text-xs font-semibold rounded-lg hover:bg-green-100 dark:hover:bg-green-500/20 transition-colors"
+                          >
+                            Aprobar
+                          </button>
+                          <button 
+                            onClick={() => onReviewAction(flow.id, 'BLOCK')}
+                            className="px-3 py-1.5 bg-red-50 text-red-700 border-red-200 dark:bg-red-500/10 dark:text-red-400 border dark:border-red-500/20 text-xs font-semibold rounded-lg hover:bg-red-100 dark:hover:bg-red-500/20 transition-colors"
+                          >
+                            Bloquear
+                          </button>
+                        </>
+                      )}
 
-                  {(flow.status === 'APPROVED' || flow.status === 'BLOCKED') && (
-                    <button 
-                      onClick={() => onReviewAction(flow.id, 'MARK_REVIEW')}
-                      className="px-3 py-1.5 bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-500/10 dark:text-orange-400 border dark:border-orange-500/20 text-xs font-semibold rounded-lg hover:bg-orange-100 dark:hover:bg-orange-500/20 transition-colors"
-                    >
-                      Poner en Revisión
-                    </button>
+                      {(flow.status === 'APPROVED' || flow.status === 'BLOCKED') && (
+                        <button 
+                          onClick={() => onReviewAction(flow.id, 'MARK_REVIEW')}
+                          className="px-3 py-1.5 bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-500/10 dark:text-orange-400 border dark:border-orange-500/20 text-xs font-semibold rounded-lg hover:bg-orange-100 dark:hover:bg-orange-500/20 transition-colors"
+                        >
+                          Poner en Revisión
+                        </button>
+                      )}
+                    </>
+                  ) : (
+                    <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium text-stone-400 dark:text-stone-500 bg-stone-100 dark:bg-neutral-900 border border-stone-200 dark:border-stone-700/60">
+                      Solo lectura
+                    </span>
                   )}
-                  
                 </td>
               </tr>
             ))

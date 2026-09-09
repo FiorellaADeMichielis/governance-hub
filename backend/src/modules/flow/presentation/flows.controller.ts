@@ -1,6 +1,9 @@
 import { Controller, Post, Body, Get, Patch, Param, UseGuards, Query, Inject, HttpCode, HttpStatus } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
+import { Roles } from '../../auth/infrastructure/decorators/roles.decorator';
+import { RolesGuard } from '../../auth/infrastructure/guards/roles.guard';
+import { UserRole } from '../../auth/domain/enums/user-role.enum';
 import { ClientProxy, Ctx, EventPattern, Payload, RmqContext } from '@nestjs/microservices'; 
 import { RegisterFlowUseCase } from '../application/use-cases/register-flow.use-case';
 import { ReviewFlowUseCase } from '../application/use-cases/review-flow.use-case';
@@ -22,6 +25,8 @@ export class FlowsController {
     private readonly flowGateway: FlowGateway,
   ) {}
 
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard('jwt'))
   @Get()
   async getAllFlows(@Query() query: GetFlowsDto) {
     const result = await this.getFlowsUseCase.execute(
@@ -89,8 +94,10 @@ export class FlowsController {
     }
   }
 
-  // Solo los usuarios con un JWT válido pueden ejecutar esta acción.
-  @UseGuards(AuthGuard('jwt')) 
+  // Solo los administradores (ACT-01) pueden revisar, aprobar o bloquear (RF-07 RBAC Estricto).
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(UserRole.ADMIN)
   @Patch(':id/review')
   async reviewFlow(
     @Param('id') id: string,

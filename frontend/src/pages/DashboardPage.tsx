@@ -1,26 +1,33 @@
 import { useEffect, useState } from 'react';
-import { io } from 'socket.io-client'; // <-- 1. IMPORTAMOS EL CLIENTE WS
+import { io } from 'socket.io-client';
 import { FlowTable, type Flow } from '../components/FlowTable';
 import { ConfirmationModal } from '../components/ConfirmationModal';
 import { Sidebar } from '../components/layouts/Sidebar';
 import { MetricsCards } from '../components/layouts/MetricsCards';
 import { DashboardLayout } from '../components/layouts/DashboardLayout';
+import { type UserSession } from '../types/auth.types';
 
 interface DashboardPageProps {
+  user: UserSession;
   onLogout: () => void;
 }
 
-export const DashboardPage = ({ onLogout }: DashboardPageProps) => {
+export const DashboardPage = ({ user, onLogout }: DashboardPageProps) => {
   // --- 1. ESTADO ---
   const [flows, setFlows] = useState<Flow[]>([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [statusFilter, setStatusFilter] = useState<string>('');
-  const [modalConfig, setModalConfig] = useState<{ isOpen: boolean; flowId: string; action: 'APPROVE' | 'BLOCK' | 'MARK_REVIEW' | null; platformId: string; }>({ isOpen: false, flowId: '', action: null, platformId: '' });
+  const [modalConfig, setModalConfig] = useState<{ 
+    isOpen: boolean; 
+    flowId: string; 
+    action: 'APPROVE' | 'BLOCK' | 'MARK_REVIEW' | null; 
+    platformId: string; 
+  }>({ isOpen: false, flowId: '', action: null, platformId: '' });
   const [isDark, setIsDark] = useState(true);
 
-  // <-- 2. NUEVO ESTADO WS: Trigger para forzar la recarga
+  // Trigger para forzar recarga por WebSocket
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   // --- 2. LÓGICA DERIVADA ---
@@ -39,7 +46,6 @@ export const DashboardPage = ({ onLogout }: DashboardPageProps) => {
     else document.documentElement.classList.remove('dark');
   }, []);
 
-  // <-- 3. NUEVO EFECTO WS: Conexión al Gateway
   useEffect(() => {
     const socket = io('http://localhost:3000'); 
 
@@ -53,7 +59,7 @@ export const DashboardPage = ({ onLogout }: DashboardPageProps) => {
     };
   }, []);
 
-  // --- 4. EFECTO FETCH (AHORA ESCUCHA AL TRIGGER) ---
+  // --- 4. EFECTO FETCH CON JWT ---
   useEffect(() => {
     const fetchFlows = async () => {
       setLoading(true);
@@ -63,7 +69,9 @@ export const DashboardPage = ({ onLogout }: DashboardPageProps) => {
 
       try {
         const response = await fetch(`http://localhost:3000/flows?${query.toString()}`, {
-          headers: { 'Authorization': `Bearer ${token}` }
+          headers: { 
+            'Authorization': `Bearer ${token}` 
+          }
         });
         if (response.ok) {
           const json = await response.json();
@@ -79,7 +87,7 @@ export const DashboardPage = ({ onLogout }: DashboardPageProps) => {
       }
     };
     fetchFlows();
-  }, [page, statusFilter, onLogout, refreshTrigger]); // <-- 4. Agregamos refreshTrigger a las dependencias
+  }, [page, statusFilter, onLogout, refreshTrigger]);
 
   // --- 5. MANEJADORES DE EVENTOS ---
   const toggleTheme = () => {
@@ -91,6 +99,12 @@ export const DashboardPage = ({ onLogout }: DashboardPageProps) => {
   };
 
   const handleReviewRequest = (id: string, action: 'APPROVE' | 'BLOCK' | 'MARK_REVIEW') => {
+    // Verificación RBAC en cliente (ACT-01 / ACT-02)
+    if (user.role !== 'ADMIN') {
+      alert('Operación restringida: Solo el personal de TI / Seguridad (Admin) puede revisar flujos.');
+      return;
+    }
+
     if (action === 'APPROVE') {
       executeAction(id, action, '');
     } else {
@@ -108,7 +122,7 @@ export const DashboardPage = ({ onLogout }: DashboardPageProps) => {
         body: JSON.stringify({ action, reason }),
       });
       if (response.ok) {
-        let newStatus = action === 'APPROVE' ? 'APPROVED' : action === 'BLOCK' ? 'BLOCKED' : 'UNDER_REVIEW';
+        const newStatus = action === 'APPROVE' ? 'APPROVED' : action === 'BLOCK' ? 'BLOCKED' : 'UNDER_REVIEW';
         setFlows(prev => prev.map(f => f.id === id ? { ...f, status: newStatus } : f));
         setModalConfig(prev => ({ ...prev, isOpen: false }));
       } else {
@@ -124,9 +138,28 @@ export const DashboardPage = ({ onLogout }: DashboardPageProps) => {
   // --- 6. RENDERIZADO COMPUESTO ---
   return (
     <DashboardLayout 
-      sidebar={<Sidebar isDark={isDark} toggleTheme={toggleTheme} onLogout={onLogout} />}
+      sidebar={<Sidebar isDark={isDark} toggleTheme={toggleTheme} onLogout={onLogout} user={user} />}
     >
-      <h2 className="text-2xl font-bold mb-6 text-stone-900 dark:text-stone-50">Overview</h2>
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h2 className="text-2xl font-bold text-stone-900 dark:text-stone-50">Overview</h2>
+          <p className="text-xs text-stone-500 dark:text-stone-400 mt-1">
+            Plataforma de Gobernanza y Supervisión de Automatizaciones LCNC
+          </p>
+        </div>
+
+        {/* Badge indicador de sesión activa */}
+        <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-xs">
+          <span className="text-stone-500 dark:text-stone-400">Rol activo:</span>
+          <span className={`font-semibold px-2 py-0.5 rounded text-[11px] ${
+            user.role === 'ADMIN'
+              ? 'bg-orange-100 text-orange-700 dark:bg-orange-500/20 dark:text-orange-400'
+              : 'bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-400'
+          }`}>
+            {user.role} ({user.department})
+          </span>
+        </div>
+      </div>
       
       <MetricsCards total={totalFlows} risky={riskyFlows} blocked={blockedFlows} />
 
@@ -153,6 +186,7 @@ export const DashboardPage = ({ onLogout }: DashboardPageProps) => {
         totalPages={totalPages}
         onNextPage={() => setPage(prev => Math.min(prev + 1, totalPages))}
         onPrevPage={() => setPage(prev => Math.max(prev - 1, 1))}
+        userRole={user.role}
       />
 
       <ConfirmationModal
