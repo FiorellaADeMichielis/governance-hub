@@ -5,6 +5,7 @@ import { envValidationSchema } from './config/env.validations';
 import { FlowsModule } from './modules/flow/flows.module'; 
 import { EventsModule } from './modules/events/events.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { GovernanceModule } from './modules/governance/governance.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { AuthModule } from './modules/auth/auth.module';
     EventsModule,
     FlowsModule,
     AuthModule,
+    GovernanceModule,
   ],
   controllers: [],
   providers: [],

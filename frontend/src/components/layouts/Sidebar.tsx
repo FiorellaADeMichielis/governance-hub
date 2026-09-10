@@ -1,15 +1,74 @@
 import { type UserSession } from '../../types/auth.types';
+import { 
+  IconDashboard, 
+  IconIntegrations, 
+  IconGovernance, 
+  IconAuditLogs, 
+  IconSun, 
+  IconMoon, 
+  IconLogout 
+} from '../common/Icons';
+
+export type NavSection = 'dashboard' | 'integrations' | 'governance' | 'audit-logs';
 
 interface SidebarProps {
   isDark: boolean;
   toggleTheme: () => void;
   onLogout: () => void;
   user?: UserSession;
+  currentSection?: NavSection;
+  onNavigate?: (section: NavSection) => void;
 }
 
-export const Sidebar = ({ isDark, toggleTheme, onLogout, user }: SidebarProps) => {
+export const Sidebar = ({ 
+  isDark, 
+  toggleTheme, 
+  onLogout, 
+  user,
+  currentSection = 'dashboard',
+  onNavigate,
+}: SidebarProps) => {
   const userInitial = user?.email ? user.email.charAt(0).toUpperCase() : 'U';
   const isAdmin = user?.role === 'ADMIN';
+
+  const allNavItems: { 
+    id: NavSection; 
+    label: string; 
+    icon: (className?: string) => React.ReactNode; 
+    adminOnly: boolean;
+  }[] = [
+    { 
+      id: 'dashboard', 
+      label: 'Dashboard', 
+      icon: (cls) => <IconDashboard className={cls} />, 
+      adminOnly: false 
+    },
+    { 
+      id: 'integrations', 
+      label: 'Integrations', 
+      icon: (cls) => <IconIntegrations className={cls} />, 
+      adminOnly: true 
+    },
+    { 
+      id: 'governance', 
+      label: 'Governance', 
+      icon: (cls) => <IconGovernance className={cls} />, 
+      adminOnly: true 
+    },
+    { 
+      id: 'audit-logs', 
+      label: 'Audit Logs', 
+      icon: (cls) => <IconAuditLogs className={cls} />, 
+      adminOnly: true 
+    },
+  ];
+
+  // Restricción RBAC: usuarios no-admin únicamente ven las secciones que les conciernen (Dashboard)
+  const navItems = allNavItems.filter((item) => !item.adminOnly || isAdmin);
+
+  const navItemBase = "w-full flex items-center gap-2.5 px-3 py-2 text-sm font-medium rounded-lg text-left transition-colors";
+  const navItemActive = "bg-orange-50 text-orange-700 dark:bg-neutral-900 dark:text-orange-400 font-semibold";
+  const navItemInactive = "text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-50 hover:bg-stone-100 dark:hover:bg-neutral-900";
 
   return (
     <aside className="w-64 bg-white dark:bg-stone-800 border-r border-stone-200 dark:border-stone-700 flex flex-col transition-colors">
@@ -22,18 +81,20 @@ export const Sidebar = ({ isDark, toggleTheme, onLogout, user }: SidebarProps) =
       </div>
 
       <nav className="flex-1 p-4 space-y-1">
-        <a href="#" className="block px-3 py-2 text-sm font-medium bg-orange-50 text-orange-700 dark:bg-neutral-900 dark:text-orange-400 rounded-lg transition-colors">
-          Dashboard
-        </a>
-        <a href="#" className="block px-3 py-2 text-sm font-medium text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-neutral-900 hover:text-stone-900 dark:hover:text-stone-50 rounded-lg transition-colors">
-          Integrations
-        </a>
-        <a href="#" className="block px-3 py-2 text-sm font-medium text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-neutral-900 hover:text-stone-900 dark:hover:text-stone-50 rounded-lg transition-colors">
-          Governance
-        </a>
-        <a href="#" className="block px-3 py-2 text-sm font-medium text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-neutral-900 hover:text-stone-900 dark:hover:text-stone-50 rounded-lg transition-colors">
-          Audit Logs
-        </a>
+        {navItems.map((item) => {
+          const isActive = currentSection === item.id;
+          return (
+            <button
+              key={item.id}
+              type="button"
+              onClick={() => onNavigate?.(item.id)}
+              className={`${navItemBase} ${isActive ? navItemActive : navItemInactive}`}
+            >
+              {item.icon(isActive ? 'w-4 h-4 text-orange-600 dark:text-orange-400' : 'w-4 h-4 text-stone-500 dark:text-stone-400')}
+              <span>{item.label}</span>
+            </button>
+          );
+        })}
       </nav>
 
       {/* Widget de usuario logueado con RBAC */}
@@ -73,15 +134,19 @@ export const Sidebar = ({ isDark, toggleTheme, onLogout, user }: SidebarProps) =
       <div className="p-4 border-t border-stone-200 dark:border-stone-700 space-y-2">
         <button 
           onClick={toggleTheme} 
-          className="w-full px-3 py-2 text-sm font-medium flex items-center justify-between text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-neutral-900 rounded-lg transition-colors text-left"
+          className="w-full px-3 py-2 text-sm font-medium flex items-center justify-between text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-50 hover:bg-stone-100 dark:hover:bg-neutral-900 rounded-lg transition-colors text-left"
         >
-          {isDark ? '☀️ Modo Claro' : '🌙 Modo Oscuro'}
+          <span className="flex items-center gap-2">
+            {isDark ? <IconSun className="w-4 h-4 text-amber-500" /> : <IconMoon className="w-4 h-4 text-stone-400" />}
+            <span>{isDark ? 'Modo Claro' : 'Modo Oscuro'}</span>
+          </span>
         </button>
         <button 
           onClick={onLogout} 
-          className="w-full px-3 py-2 text-sm font-medium text-stone-600 dark:text-stone-400 hover:bg-red-50 dark:hover:bg-neutral-900 hover:text-red-600 dark:hover:text-red-500 rounded-lg transition-colors text-left"
+          className="w-full px-3 py-2 text-sm font-medium flex items-center gap-2 text-stone-600 dark:text-stone-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-neutral-900 rounded-lg transition-colors text-left"
         >
-          Cerrar Sesión
+          <IconLogout className="w-4 h-4" />
+          <span>Cerrar Sesión</span>
         </button>
       </div>
     </aside>

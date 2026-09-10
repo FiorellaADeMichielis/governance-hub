@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { AuthLayout } from '../components/layouts/AuthLayout';
 import { LoginForm } from '../components/auth/LoginForm';
 import { AuthService } from '../services/auth.service';
+import { useTheme } from '../hooks/useTheme';
 import type { UserSession, LoginCredentials } from '../types/auth.types';
 
 export type { UserSession };
@@ -16,26 +17,9 @@ interface LoginPageProps {
  * y la comunicación de red a AuthService.
  */
 export const LoginPage = ({ onLoginSuccess }: LoginPageProps) => {
-  const [isDark, setIsDark] = useState(true);
+  const { isDark, toggleTheme } = useTheme();
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
-
-  useEffect(() => {
-    const savedTheme = localStorage.getItem('theme');
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const shouldBeDark = savedTheme === 'dark' || (!savedTheme && prefersDark);
-    setIsDark(shouldBeDark);
-    if (shouldBeDark) document.documentElement.classList.add('dark');
-    else document.documentElement.classList.remove('dark');
-  }, []);
-
-  const handleToggleTheme = () => {
-    const nextDark = !isDark;
-    setIsDark(nextDark);
-    localStorage.setItem('theme', nextDark ? 'dark' : 'light');
-    if (nextDark) document.documentElement.classList.add('dark');
-    else document.documentElement.classList.remove('dark');
-  };
 
   const handleLogin = async (credentials: LoginCredentials) => {
     setIsLoading(true);
@@ -55,7 +39,7 @@ export const LoginPage = ({ onLoginSuccess }: LoginPageProps) => {
   };
 
   return (
-    <AuthLayout isDark={isDark} onToggleTheme={handleToggleTheme}>
+    <AuthLayout isDark={isDark} onToggleTheme={toggleTheme}>
       <LoginForm
         onSubmit={handleLogin}
         isLoading={isLoading}

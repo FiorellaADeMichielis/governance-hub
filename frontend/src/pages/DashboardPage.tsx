@@ -2,10 +2,14 @@ import { useEffect, useState } from 'react';
 import { io } from 'socket.io-client';
 import { FlowTable, type Flow } from '../components/FlowTable';
 import { ConfirmationModal } from '../components/ConfirmationModal';
-import { Sidebar } from '../components/layouts/Sidebar';
+import { Sidebar, type NavSection } from '../components/layouts/Sidebar';
 import { MetricsCards } from '../components/layouts/MetricsCards';
 import { DashboardLayout } from '../components/layouts/DashboardLayout';
 import { type UserSession } from '../types/auth.types';
+import { GovernancePage } from './GovernancePage';
+import { IntegrationsView } from '../components/integrations/IntegrationsView';
+import { AuditLogsView } from '../components/audit/AuditLogsView';
+import { useTheme } from '../hooks/useTheme';
 
 interface DashboardPageProps {
   user: UserSession;
@@ -13,7 +17,9 @@ interface DashboardPageProps {
 }
 
 export const DashboardPage = ({ user, onLogout }: DashboardPageProps) => {
-  // --- 1. ESTADO ---
+  const { isDark, toggleTheme } = useTheme();
+  const isAdmin = user.role === 'ADMIN';
+  const [currentSection, setCurrentSection] = useState<NavSection>('dashboard');
   const [flows, setFlows] = useState<Flow[]>([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
@@ -25,32 +31,33 @@ export const DashboardPage = ({ user, onLogout }: DashboardPageProps) => {
     action: 'APPROVE' | 'BLOCK' | 'MARK_REVIEW' | null; 
     platformId: string; 
   }>({ isOpen: false, flowId: '', action: null, platformId: '' });
-  const [isDark, setIsDark] = useState(true);
 
   // Trigger para forzar recarga por WebSocket
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+
+  // --- 2. GUARDA DE NAVEGACIÓN RBAC ---
+  // Usuarios no-admin jamás pueden acceder a secciones restringidas
+  useEffect(() => {
+    if (!isAdmin && currentSection !== 'dashboard') {
+      setCurrentSection('dashboard');
+    }
+  }, [isAdmin, currentSection]);
+
+  const handleNavigate = (section: NavSection) => {
+    if (!isAdmin && section !== 'dashboard') return;
+    setCurrentSection(section);
+  };
 
   // --- 2. LÓGICA DERIVADA ---
   const totalFlows = flows.length;
   const blockedFlows = flows.filter(f => f.status === 'BLOCKED').length;
   const riskyFlows = flows.filter(f => f.status === 'RISKY' || f.status === 'UNDER_REVIEW').length;
 
-  // --- 3. EFECTOS (TEMA Y WEBSOCKETS) ---
-  useEffect(() => {
-    const savedTheme = localStorage.getItem('theme');
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const shouldBeDark = savedTheme === 'dark' || (!savedTheme && prefersDark);
-    
-    setIsDark(shouldBeDark);
-    if (shouldBeDark) document.documentElement.classList.add('dark');
-    else document.documentElement.classList.remove('dark');
-  }, []);
-
   useEffect(() => {
     const socket = io('http://localhost:3000'); 
 
     socket.on('flow_updated', () => {
-      console.log('📣 ¡Actualización en tiempo real recibida!');
+      console.log('[WebSocket] ¡Actualización en tiempo real recibida!');
       setRefreshTrigger(prev => prev + 1); 
     });
 
@@ -90,14 +97,6 @@ export const DashboardPage = ({ user, onLogout }: DashboardPageProps) => {
   }, [page, statusFilter, onLogout, refreshTrigger]);
 
   // --- 5. MANEJADORES DE EVENTOS ---
-  const toggleTheme = () => {
-    const newTheme = !isDark;
-    setIsDark(newTheme);
-    localStorage.setItem('theme', newTheme ? 'dark' : 'light');
-    if (newTheme) document.documentElement.classList.add('dark');
-    else document.documentElement.classList.remove('dark');
-  };
-
   const handleReviewRequest = (id: string, action: 'APPROVE' | 'BLOCK' | 'MARK_REVIEW') => {
     // Verificación RBAC en cliente (ACT-01 / ACT-02)
     if (user.role !== 'ADMIN') {
@@ -138,66 +137,91 @@ export const DashboardPage = ({ user, onLogout }: DashboardPageProps) => {
   // --- 6. RENDERIZADO COMPUESTO ---
   return (
     <DashboardLayout 
-      sidebar={<Sidebar isDark={isDark} toggleTheme={toggleTheme} onLogout={onLogout} user={user} />}
+      sidebar={
+        <Sidebar 
+          isDark={isDark} 
+          toggleTheme={toggleTheme} 
+          onLogout={onLogout} 
+          user={user} 
+          currentSection={currentSection}
+          onNavigate={handleNavigate}
+        />
+      }
     >
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h2 className="text-2xl font-bold text-stone-900 dark:text-stone-50">Overview</h2>
-          <p className="text-xs text-stone-500 dark:text-stone-400 mt-1">
-            Plataforma de Gobernanza y Supervisión de Automatizaciones LCNC
-          </p>
-        </div>
+      {isAdmin && currentSection === 'governance' && (
+        <GovernancePage user={user} />
+      )}
 
-        {/* Badge indicador de sesión activa */}
-        <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-xs">
-          <span className="text-stone-500 dark:text-stone-400">Rol activo:</span>
-          <span className={`font-semibold px-2 py-0.5 rounded text-[11px] ${
-            user.role === 'ADMIN'
-              ? 'bg-orange-100 text-orange-700 dark:bg-orange-500/20 dark:text-orange-400'
-              : 'bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-400'
-          }`}>
-            {user.role} ({user.department})
-          </span>
-        </div>
-      </div>
-      
-      <MetricsCards total={totalFlows} risky={riskyFlows} blocked={blockedFlows} />
+      {isAdmin && currentSection === 'integrations' && (
+        <IntegrationsView />
+      )}
 
-      <div className="flex justify-between items-center mb-4">
-        <h3 className="text-lg font-bold text-stone-900 dark:text-stone-50">Activity / Audit Logs</h3>
-        <select 
-          className="px-4 py-2 bg-white dark:bg-stone-800 border border-stone-300 dark:border-stone-700 text-stone-900 dark:text-stone-50 text-sm rounded-lg focus:outline-none focus:border-orange-600 focus:ring-1 focus:ring-orange-600 transition-colors"
-          value={statusFilter}
-          onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
-        >
-          <option value="">Todos los estados</option>
-          <option value="PENDING">Pendientes</option>
-          <option value="UNDER_REVIEW">En Revisión</option>
-          <option value="APPROVED">Aprobados</option>
-          <option value="BLOCKED">Bloqueados</option>
-        </select>
-      </div>
-      
-      <FlowTable 
-        flows={flows} 
-        isLoading={loading} 
-        onReviewAction={handleReviewRequest} 
-        currentPage={page}
-        totalPages={totalPages}
-        onNextPage={() => setPage(prev => Math.min(prev + 1, totalPages))}
-        onPrevPage={() => setPage(prev => Math.max(prev - 1, 1))}
-        userRole={user.role}
-      />
+      {isAdmin && currentSection === 'audit-logs' && (
+        <AuditLogsView flows={flows} isLoading={loading} />
+      )}
 
-      <ConfirmationModal
-        isOpen={modalConfig.isOpen}
-        onClose={() => setModalConfig(prev => ({ ...prev, isOpen: false }))}
-        onConfirm={(reason) => executeAction(modalConfig.flowId, modalConfig.action!, reason)}
-        title={modalConfig.action === 'BLOCK' ? 'Bloquear Integración' : 'Re-evaluar Integración'}
-        description={`Estás a punto de ${modalConfig.action === 'BLOCK' ? 'bloquear permanentemente' : 'poner en revisión'} el flujo de la plataforma ${modalConfig.platformId.toUpperCase()}.`}
-        expectedText={`${modalConfig.platformId}-confirmar`}
-        actionType={modalConfig.action === 'BLOCK' ? 'danger' : 'warning'}
-      />
+      {(!isAdmin || currentSection === 'dashboard') && (
+        <>
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h2 className="text-2xl font-bold text-stone-900 dark:text-stone-50">Overview</h2>
+              <p className="text-xs text-stone-500 dark:text-stone-400 mt-1">
+                Plataforma de Gobernanza y Supervisión de Automatizaciones LCNC
+              </p>
+            </div>
+
+            {/* Badge indicador de sesión activa */}
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-xs">
+              <span className="text-stone-500 dark:text-stone-400">Rol activo:</span>
+              <span className={`font-semibold px-2 py-0.5 rounded text-[11px] ${
+                user.role === 'ADMIN'
+                  ? 'bg-orange-100 text-orange-700 dark:bg-orange-500/20 dark:text-orange-400'
+                  : 'bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-400'
+              }`}>
+                {user.role} ({user.department})
+              </span>
+            </div>
+          </div>
+          
+          <MetricsCards total={totalFlows} risky={riskyFlows} blocked={blockedFlows} />
+
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-lg font-bold text-stone-900 dark:text-stone-50">Activity / Audit Logs</h3>
+            <select 
+              className="px-4 py-2 bg-white dark:bg-stone-800 border border-stone-300 dark:border-stone-700 text-stone-900 dark:text-stone-50 text-sm rounded-lg focus:outline-none focus:border-orange-600 focus:ring-1 focus:ring-orange-600 transition-colors"
+              value={statusFilter}
+              onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
+            >
+              <option value="">Todos los estados</option>
+              <option value="PENDING">Pendientes</option>
+              <option value="UNDER_REVIEW">En Revisión</option>
+              <option value="APPROVED">Aprobados</option>
+              <option value="BLOCKED">Bloqueados</option>
+            </select>
+          </div>
+          
+          <FlowTable 
+            flows={flows} 
+            isLoading={loading} 
+            onReviewAction={handleReviewRequest} 
+            currentPage={page}
+            totalPages={totalPages}
+            onNextPage={() => setPage(prev => Math.min(prev + 1, totalPages))}
+            onPrevPage={() => setPage(prev => Math.max(prev - 1, 1))}
+            userRole={user.role}
+          />
+
+          <ConfirmationModal
+            isOpen={modalConfig.isOpen}
+            onClose={() => setModalConfig(prev => ({ ...prev, isOpen: false }))}
+            onConfirm={(reason) => executeAction(modalConfig.flowId, modalConfig.action!, reason)}
+            title={modalConfig.action === 'BLOCK' ? 'Bloquear Integración' : 'Re-evaluar Integración'}
+            description={`Estás a punto de ${modalConfig.action === 'BLOCK' ? 'bloquear permanentemente' : 'poner en revisión'} el flujo de la plataforma ${modalConfig.platformId.toUpperCase()}.`}
+            expectedText={`${modalConfig.platformId}-confirmar`}
+            actionType={modalConfig.action === 'BLOCK' ? 'danger' : 'warning'}
+          />
+        </>
+      )}
     </DashboardLayout>
   );
 };

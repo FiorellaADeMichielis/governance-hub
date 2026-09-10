@@ -41,6 +41,6 @@ import { AuthModule } from '../auth/auth.module';
     GetFlowsUseCase,
     FlowGateway,
   ],
-  exports: [FLOW_REPOSITORY],
+  exports: [FLOW_REPOSITORY, FlowGateway],
 })
 export class FlowsModule {}

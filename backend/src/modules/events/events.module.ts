@@ -3,9 +3,12 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { EventsController } from './events.controller';
 
+import { GovernanceModule } from '../governance/governance.module';
+
 @Global()
 @Module({
   imports: [
+    GovernanceModule,
     ClientsModule.registerAsync([
       {
         name: 'RABBITMQ_SERVICE', 

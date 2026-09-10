@@ -1,4 +1,5 @@
 import { type ReactNode } from 'react';
+import { IconSun, IconMoon } from '../common/Icons';
 
 interface AuthLayoutProps {
   children: ReactNode;
@@ -23,9 +24,10 @@ export const AuthLayout = ({
           onClick={onToggleTheme}
           type="button"
           aria-label={isDark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
-          className="px-3.5 py-1.5 text-xs font-medium bg-white dark:bg-stone-800 text-stone-700 dark:text-stone-300 border border-stone-200 dark:border-stone-700 rounded-lg shadow-sm hover:bg-stone-50 dark:hover:bg-stone-700 transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500"
+          className="px-3.5 py-1.5 text-xs font-medium bg-white dark:bg-stone-800 text-stone-700 dark:text-stone-300 border border-stone-200 dark:border-stone-700 rounded-lg shadow-sm hover:bg-stone-50 dark:hover:bg-stone-700 transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500 flex items-center gap-1.5"
         >
-          {isDark ? '☀️ Modo Claro' : '🌙 Modo Oscuro'}
+          {isDark ? <IconSun className="w-3.5 h-3.5 text-amber-500" /> : <IconMoon className="w-3.5 h-3.5 text-stone-400" />}
+          <span>{isDark ? 'Modo Claro' : 'Modo Oscuro'}</span>
         </button>
       </div>
 
