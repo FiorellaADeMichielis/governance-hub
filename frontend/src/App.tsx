@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { DashboardPage } from './pages/DashboardPage';
 import { LoginPage } from './pages/LoginPage';
 import { AuthService } from './services/auth.service';
+import { LanguageProvider } from './i18n/LanguageContext';
 import type { UserSession } from './types/auth.types';
 
 function App() {
@@ -38,14 +39,16 @@ function App() {
   }
 
   return (
-    <div>
-      {isAuthenticated && user ? (
-        <DashboardPage user={user} onLogout={handleLogout} />
-      ) : (
-        <LoginPage onLoginSuccess={handleLoginSuccess} />
-      )}
-    </div>
+    <LanguageProvider>
+      <div>
+        {isAuthenticated && user ? (
+          <DashboardPage user={user} onLogout={handleLogout} />
+        ) : (
+          <LoginPage onLoginSuccess={handleLoginSuccess} />
+        )}
+      </div>
+    </LanguageProvider>
   );
-}
+};
 
 export default App;

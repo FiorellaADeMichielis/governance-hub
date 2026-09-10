@@ -1,0 +1,178 @@
+export type SupportedLanguage = 'es' | 'en' | 'pt';
+
+export interface LanguageOption {
+  code: SupportedLanguage;
+  label: string;
+  shortLabel: string;
+}
+
+export interface TranslationSchema {
+  common: {
+    systemHealthy: string;
+    loading: string;
+    lightMode: string;
+    darkMode: string;
+    logout: string;
+    cancel: string;
+    confirm: string;
+    save: string;
+    search: string;
+    actions: string;
+    active: string;
+    inactive: string;
+    status: string;
+    risk: string;
+    all: string;
+    role: string;
+  };
+  auth: {
+    title: string;
+    subtitle: string;
+    footerText: string;
+    corporateEmail: string;
+    emailPlaceholder: string;
+    password: string;
+    passwordPlaceholder: string;
+    rememberDevice: string;
+    protectedByRbac: string;
+    signIn: string;
+    verifying: string;
+    hidePassword: string;
+    showPassword: string;
+    unexpectedError: string;
+  };
+  sidebar: {
+    dashboard: string;
+    integrations: string;
+    governance: string;
+    auditLogs: string;
+  };
+  dashboard: {
+    overviewTitle: string;
+    overviewSubtitle: string;
+    activeRole: string;
+    metricsTotal: string;
+    metricsRisky: string;
+    metricsBlocked: string;
+    activityTitle: string;
+    allStatuses: string;
+    pending: string;
+    underReview: string;
+    approved: string;
+    blocked: string;
+    risky: string;
+    platformColumn: string;
+    departmentColumn: string;
+    statusColumn: string;
+    actionsColumn: string;
+    emptyFlows: string;
+    loadingFlows: string;
+    pageOf: string;
+    previous: string;
+    next: string;
+    approveAction: string;
+    reviewAction: string;
+    blockAction: string;
+    readOnlyBadge: string;
+    restrictedActionNotice: string;
+    modalBlockTitle: string;
+    modalReviewTitle: string;
+    modalBlockDesc: string;
+    modalReviewDesc: string;
+    modalReasonLabel: string;
+    modalReasonPlaceholder: string;
+    modalConfirmType: string;
+  };
+  governance: {
+    title: string;
+    subtitle: string;
+    playgroundBtn: string;
+    newPolicyBtn: string;
+    readOnlyBanner: string;
+    activeRulesMetric: string;
+    criticalRulesMetric: string;
+    coverageMetric: string;
+    searchPlaceholder: string;
+    emptyRules: string;
+    loadingRules: string;
+    priorityBadge: string;
+    ifCondition: string;
+    resultingAction: string;
+    deleteRuleConfirm: string;
+    ruleCreatedSuccess: string;
+  };
+  ruleForm: {
+    modalTitle: string;
+    modalSubtitle: string;
+    nameLabel: string;
+    namePlaceholder: string;
+    descLabel: string;
+    descPlaceholder: string;
+    fieldLabel: string;
+    operatorLabel: string;
+    valueLabel: string;
+    valuePlaceholder: string;
+    statusLabel: string;
+    riskLabel: string;
+    priorityLabel: string;
+    saving: string;
+    createRule: string;
+    validationError: string;
+  };
+  playground: {
+    modalTitle: string;
+    modalSubtitle: string;
+    presetsTitle: string;
+    preset1Title: string;
+    preset2Title: string;
+    preset3Title: string;
+    preset4Title: string;
+    platformLabel: string;
+    deptLabel: string;
+    payloadLabel: string;
+    simulating: string;
+    simulateBtn: string;
+    resultTitle: string;
+    finalStatus: string;
+    riskLevel: string;
+    matchedRules: string;
+    compliantNotice: string;
+    invalidJson: string;
+  };
+  integrations: {
+    title: string;
+    subtitle: string;
+    connectorsOnline: string;
+    eventsProcessed: string;
+    avgLatency: string;
+    security: string;
+    webhookTitle: string;
+    webhookSubtitle: string;
+    copied: string;
+    copyCurl: string;
+    bullet1: string;
+    bullet2: string;
+    bullet3: string;
+    zapierDesc: string;
+    makeDesc: string;
+    n8nDesc: string;
+    powerAutomateDesc: string;
+  };
+  auditLogs: {
+    title: string;
+    subtitle: string;
+    totalRecords: string;
+    searchPlaceholder: string;
+    allStatuses: string;
+    colEventId: string;
+    colPlatform: string;
+    colDepartment: string;
+    colEvaluation: string;
+    colRisk: string;
+    colMechanism: string;
+    loadingTraces: string;
+    emptySearch: string;
+    mechanismValue: string;
+  };
+}
+

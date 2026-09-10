@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { LoginCredentials } from '../../types/auth.types';
+import { useTranslation } from '../../i18n/useTranslation';
 
 interface LoginFormProps {
   onSubmit: (credentials: LoginCredentials) => void;
@@ -8,6 +9,7 @@ interface LoginFormProps {
 }
 
 export const LoginForm = ({ onSubmit, isLoading, errorMessage }: LoginFormProps) => {
+  const { t } = useTranslation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -41,7 +43,7 @@ export const LoginForm = ({ onSubmit, isLoading, errorMessage }: LoginFormProps)
           htmlFor="email" 
           className="block text-xs font-semibold text-stone-700 dark:text-stone-300 mb-1.5"
         >
-          Correo Corporativo
+          {t('auth.corporateEmail')}
         </label>
         <div className="relative">
           <input
@@ -49,7 +51,7 @@ export const LoginForm = ({ onSubmit, isLoading, errorMessage }: LoginFormProps)
             name="email"
             type="email"
             autoComplete="username"
-            placeholder="usuario@empresa.com"
+            placeholder={t('auth.emailPlaceholder')}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             disabled={isLoading}
@@ -66,7 +68,7 @@ export const LoginForm = ({ onSubmit, isLoading, errorMessage }: LoginFormProps)
             htmlFor="current-password" 
             className="block text-xs font-semibold text-stone-700 dark:text-stone-300"
           >
-            Contraseña
+            {t('auth.password')}
           </label>
         </div>
         <div className="relative">
@@ -75,7 +77,7 @@ export const LoginForm = ({ onSubmit, isLoading, errorMessage }: LoginFormProps)
             name="password"
             type={showPassword ? 'text' : 'password'}
             autoComplete="current-password"
-            placeholder="••••••••••••"
+            placeholder={t('auth.passwordPlaceholder')}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             disabled={isLoading}
@@ -85,7 +87,7 @@ export const LoginForm = ({ onSubmit, isLoading, errorMessage }: LoginFormProps)
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            aria-label={showPassword ? 'Ocultar contraseña' : 'Ver contraseña'}
+            aria-label={showPassword ? t('auth.hidePassword') : t('auth.showPassword')}
             className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 transition-colors p-1"
           >
             {showPassword ? (
@@ -111,10 +113,10 @@ export const LoginForm = ({ onSubmit, isLoading, errorMessage }: LoginFormProps)
             onChange={(e) => setRememberMe(e.target.checked)}
             className="w-4 h-4 text-orange-600 bg-stone-100 border-stone-300 rounded focus:ring-orange-500 dark:bg-stone-800 dark:border-stone-700 cursor-pointer"
           />
-          <span>Recordar dispositivo</span>
+          <span>{t('auth.rememberDevice')}</span>
         </label>
         <span className="text-stone-400 dark:text-stone-500 text-[11px]">
-          Protegido por RBAC
+          {t('auth.protectedByRbac')}
         </span>
       </div>
 
@@ -130,10 +132,10 @@ export const LoginForm = ({ onSubmit, isLoading, errorMessage }: LoginFormProps)
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
-            <span>Verificando credenciales...</span>
+            <span>{t('auth.verifying')}</span>
           </>
         ) : (
-          <span>Iniciar Sesión</span>
+          <span>{t('auth.signIn')}</span>
         )}
       </button>
     </form>
