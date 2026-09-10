@@ -1,4 +1,8 @@
+import { useTranslation } from '../i18n/useTranslation';
+
 export const StatusBadge = ({ status }: { status: string }) => {
+  const { t } = useTranslation();
+
   const styles: Record<string, string> = {
     APPROVED: 'bg-green-600/10 text-green-700 dark:text-green-400 border-green-600/20',
     BLOCKED: 'bg-red-600/10 text-red-700 dark:text-red-400 border-red-600/20',
@@ -8,11 +12,21 @@ export const StatusBadge = ({ status }: { status: string }) => {
     PENDING: 'bg-stone-500/10 text-stone-700 dark:text-stone-400 border-stone-500/20',
   };
 
+  const labelMap: Record<string, string> = {
+    APPROVED: t('dashboard.statusApproved'),
+    BLOCKED: t('dashboard.statusBlocked'),
+    REJECTED: t('dashboard.statusRejected'),
+    RISKY: t('dashboard.statusRisky'),
+    UNDER_REVIEW: t('dashboard.statusUnderReview'),
+    PENDING: t('dashboard.statusPending'),
+  };
+
   const currentStyle = styles[status] || styles.PENDING;
+  const displayLabel = labelMap[status] || status;
 
   return (
     <span className={`px-2.5 py-1 text-xs font-semibold rounded-full border ${currentStyle}`}>
-      {status}
+      {displayLabel}
     </span>
   );
 };

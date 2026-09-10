@@ -82,6 +82,13 @@ export interface TranslationSchema {
     modalReasonLabel: string;
     modalReasonPlaceholder: string;
     modalConfirmType: string;
+    confirmKeyword: string;
+    statusApproved: string;
+    statusBlocked: string;
+    statusRejected: string;
+    statusRisky: string;
+    statusUnderReview: string;
+    statusPending: string;
   };
   governance: {
     title: string;

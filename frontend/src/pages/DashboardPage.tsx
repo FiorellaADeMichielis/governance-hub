@@ -10,6 +10,7 @@ import { GovernancePage } from './GovernancePage';
 import { IntegrationsView } from '../components/integrations/IntegrationsView';
 import { AuditLogsView } from '../components/audit/AuditLogsView';
 import { useTheme } from '../hooks/useTheme';
+import { useTranslation } from '../i18n/useTranslation';
 
 interface DashboardPageProps {
   user: UserSession;
@@ -18,6 +19,7 @@ interface DashboardPageProps {
 
 export const DashboardPage = ({ user, onLogout }: DashboardPageProps) => {
   const { isDark, toggleTheme } = useTheme();
+  const { t } = useTranslation();
   const isAdmin = user.role === 'ADMIN';
   const [currentSection, setCurrentSection] = useState<NavSection>('dashboard');
   const [flows, setFlows] = useState<Flow[]>([]);
@@ -100,7 +102,7 @@ export const DashboardPage = ({ user, onLogout }: DashboardPageProps) => {
   const handleReviewRequest = (id: string, action: 'APPROVE' | 'BLOCK' | 'MARK_REVIEW') => {
     // Verificación RBAC en cliente (ACT-01 / ACT-02)
     if (user.role !== 'ADMIN') {
-      alert('Operación restringida: Solo el personal de TI / Seguridad (Admin) puede revisar flujos.');
+      alert(t('dashboard.restrictedActionNotice'));
       return;
     }
 
@@ -164,15 +166,15 @@ export const DashboardPage = ({ user, onLogout }: DashboardPageProps) => {
         <>
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h2 className="text-2xl font-bold text-stone-900 dark:text-stone-50">Overview</h2>
+              <h2 className="text-2xl font-bold text-stone-900 dark:text-stone-50">{t('dashboard.overviewTitle')}</h2>
               <p className="text-xs text-stone-500 dark:text-stone-400 mt-1">
-                Plataforma de Gobernanza y Supervisión de Automatizaciones LCNC
+                {t('dashboard.overviewSubtitle')}
               </p>
             </div>
 
             {/* Badge indicador de sesión activa */}
             <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-xs">
-              <span className="text-stone-500 dark:text-stone-400">Rol activo:</span>
+              <span className="text-stone-500 dark:text-stone-400">{t('dashboard.activeRole')}</span>
               <span className={`font-semibold px-2 py-0.5 rounded text-[11px] ${
                 user.role === 'ADMIN'
                   ? 'bg-orange-100 text-orange-700 dark:bg-orange-500/20 dark:text-orange-400'
@@ -186,17 +188,17 @@ export const DashboardPage = ({ user, onLogout }: DashboardPageProps) => {
           <MetricsCards total={totalFlows} risky={riskyFlows} blocked={blockedFlows} />
 
           <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-bold text-stone-900 dark:text-stone-50">Activity / Audit Logs</h3>
+            <h3 className="text-lg font-bold text-stone-900 dark:text-stone-50">{t('dashboard.activityTitle')}</h3>
             <select 
-              className="px-4 py-2 bg-white dark:bg-stone-800 border border-stone-300 dark:border-stone-700 text-stone-900 dark:text-stone-50 text-sm rounded-lg focus:outline-none focus:border-orange-600 focus:ring-1 focus:ring-orange-600 transition-colors"
+              className="px-4 py-2 bg-white dark:bg-stone-800 border border-stone-300 dark:border-stone-700 text-stone-900 dark:text-stone-50 text-sm rounded-lg focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 transition-colors cursor-pointer"
               value={statusFilter}
               onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
             >
-              <option value="">Todos los estados</option>
-              <option value="PENDING">Pendientes</option>
-              <option value="UNDER_REVIEW">En Revisión</option>
-              <option value="APPROVED">Aprobados</option>
-              <option value="BLOCKED">Bloqueados</option>
+              <option value="" className="bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100">{t('dashboard.allStatuses')}</option>
+              <option value="PENDING" className="bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100">{t('dashboard.pending')}</option>
+              <option value="UNDER_REVIEW" className="bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100">{t('dashboard.underReview')}</option>
+              <option value="APPROVED" className="bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100">{t('dashboard.approved')}</option>
+              <option value="BLOCKED" className="bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100">{t('dashboard.blocked')}</option>
             </select>
           </div>
           
@@ -215,9 +217,11 @@ export const DashboardPage = ({ user, onLogout }: DashboardPageProps) => {
             isOpen={modalConfig.isOpen}
             onClose={() => setModalConfig(prev => ({ ...prev, isOpen: false }))}
             onConfirm={(reason) => executeAction(modalConfig.flowId, modalConfig.action!, reason)}
-            title={modalConfig.action === 'BLOCK' ? 'Bloquear Integración' : 'Re-evaluar Integración'}
-            description={`Estás a punto de ${modalConfig.action === 'BLOCK' ? 'bloquear permanentemente' : 'poner en revisión'} el flujo de la plataforma ${modalConfig.platformId.toUpperCase()}.`}
-            expectedText={`${modalConfig.platformId}-confirmar`}
+            title={modalConfig.action === 'BLOCK' ? t('dashboard.modalBlockTitle') : t('dashboard.modalReviewTitle')}
+            description={modalConfig.action === 'BLOCK' 
+              ? t('dashboard.modalBlockDesc', { platform: modalConfig.platformId.toUpperCase() }) 
+              : t('dashboard.modalReviewDesc', { platform: modalConfig.platformId.toUpperCase() })}
+            expectedText={`${modalConfig.platformId}-${t('dashboard.confirmKeyword')}`}
             actionType={modalConfig.action === 'BLOCK' ? 'danger' : 'warning'}
           />
         </>
