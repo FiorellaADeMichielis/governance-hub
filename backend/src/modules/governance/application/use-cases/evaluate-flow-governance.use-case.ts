@@ -40,7 +40,7 @@ export class EvaluateFlowGovernanceUseCase {
     );
 
     if (result.isViolated) {
-      this.logger.log(`🛡️ [Governance] Violación detectada en flujo ${flowId}. Estado resultante: ${result.finalStatus} (Riesgo: ${result.finalRiskLevel})`);
+      this.logger.log(`[Governance] Violación detectada en flujo ${flowId}. Estado resultante: ${result.finalStatus} (Riesgo: ${result.finalRiskLevel})`);
 
       const reasonText = result.reasons.join(' | ');
 
@@ -57,12 +57,12 @@ export class EvaluateFlowGovernanceUseCase {
 
         await this.flowRepository.save(flow);
         this.flowGateway.notifyFlowUpdate();
-        this.logger.log(`⚡ [WebSockets] Dashboard notificado del nuevo estado del flujo ${flowId}`);
+        this.logger.log(`[WebSockets] Dashboard notificado del nuevo estado del flujo ${flowId}`);
       } catch (err: any) {
         this.logger.error(`Error aplicando transición de estado en flujo ${flowId}: ${err.message}`);
       }
     } else {
-      this.logger.log(`✅ [Governance] Flujo ${flowId} evaluado: Cumple con todas las políticas activas.`);
+      this.logger.log(`[Governance] Flujo ${flowId} evaluado: Cumple con todas las políticas activas.`);
     }
 
     return result;

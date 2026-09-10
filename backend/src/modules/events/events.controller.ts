@@ -12,7 +12,7 @@ export class EventsController {
 
   @EventPattern('flow.registered')
   async handleFlowRegistered(@Payload() data: any, @Ctx() context: RmqContext) {
-    this.logger.log(`⚡ [RabbitMQ] Evento 'flow.registered' recibido para flujo: ${data.flowId}`);
+    this.logger.log(`[RabbitMQ] Evento 'flow.registered' recibido para flujo: ${data.flowId}`);
 
     try {
       if (data.flowId) {
@@ -21,7 +21,6 @@ export class EventsController {
     } catch (error: any) {
       this.logger.error(`Error procesando gobernanza para flujo ${data.flowId}: ${error.message}`);
     } finally {
-      // RabbitMQ requiere confirmación manual (ACK)
       const channel = context.getChannelRef();
       const originalMsg = context.getMessage();
       channel.ack(originalMsg);

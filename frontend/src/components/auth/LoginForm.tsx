@@ -23,7 +23,6 @@ export const LoginForm = ({ onSubmit, isLoading, errorMessage }: LoginFormProps)
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5" noValidate={false}>
-      {/* Alerta de error accesible */}
       {errorMessage && (
         <div 
           role="alert"
@@ -37,7 +36,6 @@ export const LoginForm = ({ onSubmit, isLoading, errorMessage }: LoginFormProps)
         </div>
       )}
 
-      {/* Campo Email */}
       <div>
         <label 
           htmlFor="email" 
@@ -61,7 +59,6 @@ export const LoginForm = ({ onSubmit, isLoading, errorMessage }: LoginFormProps)
         </div>
       </div>
 
-      {/* Campo Contraseña con Toggle Mostrar/Ocultar */}
       <div>
         <div className="flex items-center justify-between mb-1.5">
           <label 
@@ -104,7 +101,6 @@ export const LoginForm = ({ onSubmit, isLoading, errorMessage }: LoginFormProps)
         </div>
       </div>
 
-      {/* Recordarme */}
       <div className="flex items-center justify-between text-xs">
         <label className="flex items-center gap-2 text-stone-600 dark:text-stone-400 cursor-pointer">
           <input
@@ -120,7 +116,6 @@ export const LoginForm = ({ onSubmit, isLoading, errorMessage }: LoginFormProps)
         </span>
       </div>
 
-      {/* Botón de envío */}
       <button
         type="submit"
         disabled={isLoading}

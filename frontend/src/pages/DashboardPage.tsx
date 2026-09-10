@@ -34,11 +34,8 @@ export const DashboardPage = ({ user, onLogout }: DashboardPageProps) => {
     platformId: string; 
   }>({ isOpen: false, flowId: '', action: null, platformId: '' });
 
-  // Trigger para forzar recarga por WebSocket
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
-  // --- 2. GUARDA DE NAVEGACIÓN RBAC ---
-  // Usuarios no-admin jamás pueden acceder a secciones restringidas
   useEffect(() => {
     if (!isAdmin && currentSection !== 'dashboard') {
       setCurrentSection('dashboard');
@@ -50,7 +47,6 @@ export const DashboardPage = ({ user, onLogout }: DashboardPageProps) => {
     setCurrentSection(section);
   };
 
-  // --- 2. LÓGICA DERIVADA ---
   const totalFlows = flows.length;
   const blockedFlows = flows.filter(f => f.status === 'BLOCKED').length;
   const riskyFlows = flows.filter(f => f.status === 'RISKY' || f.status === 'UNDER_REVIEW').length;
@@ -59,7 +55,6 @@ export const DashboardPage = ({ user, onLogout }: DashboardPageProps) => {
     const socket = io('http://localhost:3000'); 
 
     socket.on('flow_updated', () => {
-      console.log('[WebSocket] ¡Actualización en tiempo real recibida!');
       setRefreshTrigger(prev => prev + 1); 
     });
 
@@ -68,7 +63,6 @@ export const DashboardPage = ({ user, onLogout }: DashboardPageProps) => {
     };
   }, []);
 
-  // --- 4. EFECTO FETCH CON JWT ---
   useEffect(() => {
     const fetchFlows = async () => {
       setLoading(true);
@@ -98,9 +92,7 @@ export const DashboardPage = ({ user, onLogout }: DashboardPageProps) => {
     fetchFlows();
   }, [page, statusFilter, onLogout, refreshTrigger]);
 
-  // --- 5. MANEJADORES DE EVENTOS ---
   const handleReviewRequest = (id: string, action: 'APPROVE' | 'BLOCK' | 'MARK_REVIEW') => {
-    // Verificación RBAC en cliente (ACT-01 / ACT-02)
     if (user.role !== 'ADMIN') {
       alert(t('dashboard.restrictedActionNotice'));
       return;
@@ -136,7 +128,6 @@ export const DashboardPage = ({ user, onLogout }: DashboardPageProps) => {
     }
   };
 
-  // --- 6. RENDERIZADO COMPUESTO ---
   return (
     <DashboardLayout 
       sidebar={

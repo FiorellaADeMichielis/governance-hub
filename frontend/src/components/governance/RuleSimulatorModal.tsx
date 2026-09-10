@@ -123,7 +123,7 @@ export const RuleSimulatorModal = ({ isOpen, onClose }: RuleSimulatorModalProps)
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-950/60 backdrop-blur-xs animate-fadeIn">
       <div className="bg-white dark:bg-stone-800 w-full max-w-2xl rounded-2xl shadow-2xl border border-stone-200 dark:border-stone-700 overflow-hidden max-h-[90vh] flex flex-col">
-        {/* Cabecera */}
+        {/* Header */}
         <div className="p-6 border-b border-stone-200 dark:border-stone-700 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl bg-orange-600/10 text-orange-600 dark:text-orange-400 flex items-center justify-center font-bold text-lg border border-orange-500/20">

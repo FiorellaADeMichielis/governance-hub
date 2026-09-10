@@ -43,7 +43,6 @@ export const RuleFormModal = ({ isOpen, onClose, onSubmit, isLoading }: RuleForm
         resultingRiskLevel,
         priority: Number(priority),
       });
-      // Reset form
       setName('');
       setDescription('');
       setExpectedValue('');
@@ -56,7 +55,6 @@ export const RuleFormModal = ({ isOpen, onClose, onSubmit, isLoading }: RuleForm
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-950/60 backdrop-blur-xs animate-fadeIn">
       <div className="bg-white dark:bg-stone-800 w-full max-w-lg rounded-2xl shadow-2xl border border-stone-200 dark:border-stone-700 overflow-hidden">
-        {/* Cabecera */}
         <div className="p-6 border-b border-stone-200 dark:border-stone-700 flex items-center justify-between">
           <div>
             <h3 className="text-lg font-bold text-stone-900 dark:text-stone-50">

@@ -100,7 +100,7 @@ export class GovernanceModule implements OnModuleInit {
         await this.ruleRepository.save(rule);
       }
 
-      this.logger.log(`✅ ${initialRules.length} reglas de gobernanza sembradas exitosamente.`);
+      this.logger.log(`${initialRules.length} reglas de gobernanza sembradas exitosamente.`);
     }
   }
 }

@@ -66,7 +66,6 @@ export const Sidebar = ({
     },
   ];
 
-  // Restricción RBAC: usuarios no-admin únicamente ven las secciones que les conciernen (Dashboard)
   const navItems = allNavItems.filter((item) => !item.adminOnly || isAdmin);
 
   const navItemBase = "w-full flex items-center gap-2.5 px-3 py-2 text-sm font-medium rounded-lg text-left transition-colors";
@@ -100,7 +99,6 @@ export const Sidebar = ({
         })}
       </nav>
       
-      {/* Widget de usuario logueado con RBAC */}
       {user && (
         <div className="p-4 mx-3 mb-2 bg-stone-50 dark:bg-neutral-900/70 border border-stone-200 dark:border-stone-700/60 rounded-xl shrink-0">
           <div className="flex items-center gap-3">

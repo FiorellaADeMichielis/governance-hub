@@ -88,14 +88,12 @@ export const GovernancePage = ({ user }: GovernancePageProps) => {
     }
   };
 
-  // Métricas calculadas
   const totalRules = rules.length;
   const activeRules = rules.filter((r) => r.isActive).length;
   const criticalRules = rules.filter((r) => r.resultingRiskLevel === 'CRITICAL' || r.resultingStatus === 'BLOCKED').length;
 
   return (
     <div className="space-y-6 animate-fadeIn">
-      {/* Encabezado y Acciones */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl font-bold text-stone-900 dark:text-stone-50">
@@ -107,7 +105,6 @@ export const GovernancePage = ({ user }: GovernancePageProps) => {
         </div>
 
         <div className="flex items-center gap-2.5">
-          {/* Botón Playground / Simulador */}
           <button
             type="button"
             onClick={() => setIsSimulatorOpen(true)}
@@ -117,7 +114,6 @@ export const GovernancePage = ({ user }: GovernancePageProps) => {
             <span>{t('governance.playgroundBtn')}</span>
           </button>
 
-          {/* Botón Nueva Regla (Solo Admin) */}
           {isAdmin && (
             <button
               type="button"
@@ -131,7 +127,6 @@ export const GovernancePage = ({ user }: GovernancePageProps) => {
         </div>
       </div>
 
-      {/* Banner informativo si es usuario regular */}
       {!isAdmin && (
         <div className="p-3.5 bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/20 text-blue-700 dark:text-blue-300 text-xs rounded-xl flex items-center gap-2">
           <IconInfo className="w-4 h-4 shrink-0" />
@@ -139,7 +134,6 @@ export const GovernancePage = ({ user }: GovernancePageProps) => {
         </div>
       )}
 
-      {/* Tarjetas de Métricas de Gobernanza */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="p-4 rounded-xl bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 shadow-sm transition-colors">
           <div className="text-xs font-medium text-stone-500 dark:text-stone-400">{t('governance.totalRulesMetric')}</div>
@@ -160,7 +154,6 @@ export const GovernancePage = ({ user }: GovernancePageProps) => {
         </div>
       </div>
 
-      {/* Lista de Reglas */}
       {error && (
         <div className="p-4 bg-red-50 dark:bg-red-500/10 border-l-4 border-red-500 text-red-700 dark:text-red-400 text-xs rounded-r-lg">
           {error}
@@ -194,7 +187,6 @@ export const GovernancePage = ({ user }: GovernancePageProps) => {
         </div>
       )}
 
-      {/* Modal Crear Regla */}
       <RuleFormModal
         isOpen={isCreateOpen}
         onClose={() => setIsCreateOpen(false)}
@@ -202,7 +194,6 @@ export const GovernancePage = ({ user }: GovernancePageProps) => {
         isLoading={isSubmitting}
       />
 
-      {/* Modal Simulador / Playground */}
       <RuleSimulatorModal
         isOpen={isSimulatorOpen}
         onClose={() => setIsSimulatorOpen(false)}

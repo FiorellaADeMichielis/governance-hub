@@ -31,14 +31,10 @@ export class RegisteredFlow {
     this.updatedAt = updatedAt;
   }
 
-  // Getters
   getId(): string { return this.id; }
   getStatus(): FlowStatus { return this.status; }
   getRiskLevel(): RiskLevel { return this.riskLevel; }
 
-  // Métodos de Dominio (Comportamiento y Reglas de Negocio)
-  
-  // 1. Poner en revisión un flujo previamente aprobado o bloqueado (Enfoque Flexible)
   public markForReview(reason: string): void {
     if (this.status !== FlowStatus.APPROVED && this.status !== FlowStatus.BLOCKED) {
       throw new Error('Solo los flujos aprobados o bloqueados pueden ser puestos en revisión.');
@@ -48,7 +44,6 @@ export class RegisteredFlow {
     this.markAsUpdated();
   }
 
-  // 2. Bloquear (no se puede bloquear directo si está aprobado)
   public blockFlow(reason: string): void {
     if (this.status === FlowStatus.APPROVED) {
       throw new Error('Cannot block an already approved flow without prior review.');
@@ -58,7 +53,6 @@ export class RegisteredFlow {
     this.markAsUpdated();
   }
 
-  // 3. Aprobar (no se puede aprobar directo si está bloqueado, debe pasar por revisión)
   public approveFlow(): void {
     if (this.status === FlowStatus.BLOCKED) {
       throw new Error('Cannot approve a blocked flow directly. It must be reviewed first.');
@@ -67,7 +61,6 @@ export class RegisteredFlow {
     this.markAsUpdated();
   }
 
-  // 4. Marcar como riesgoso
   public markAsRisky(level: RiskLevel): void {
     this.status = FlowStatus.RISKY;
     this.riskLevel = level;

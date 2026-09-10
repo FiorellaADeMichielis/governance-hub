@@ -54,7 +54,6 @@ export const RuleCard = ({ rule, onToggle, onDelete, isToggling }: RuleCardProps
         : 'bg-stone-50/70 dark:bg-stone-900/40 border-stone-200/60 dark:border-stone-800/40 opacity-70'
     }`}>
       <div className="flex items-start justify-between gap-4">
-        {/* Encabezado y Descripción */}
         <div className="flex-1">
           <div className="flex items-center gap-2 mb-1.5">
             <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-stone-100 dark:bg-neutral-900 text-stone-600 dark:text-stone-300 border border-stone-200 dark:border-stone-700">
@@ -68,7 +67,6 @@ export const RuleCard = ({ rule, onToggle, onDelete, isToggling }: RuleCardProps
             {rule.description}
           </p>
 
-          {/* Condición de la regla */}
           <div className="flex flex-wrap items-center gap-2 p-2.5 rounded-lg bg-stone-50 dark:bg-neutral-900 border border-stone-200/80 dark:border-stone-700 font-mono text-xs">
             <span className="text-stone-500 dark:text-stone-400 font-sans text-[11px]">{t('governance.ifCondition')}</span>
             <span className="px-1.5 py-0.5 rounded bg-white dark:bg-stone-800 text-orange-600 dark:text-orange-400 font-semibold border border-stone-200 dark:border-stone-700">
@@ -83,9 +81,7 @@ export const RuleCard = ({ rule, onToggle, onDelete, isToggling }: RuleCardProps
           </div>
         </div>
 
-        {/* Acciones y Toggle */}
         <div className="flex flex-col items-end gap-3">
-          {/* Switch de activación */}
           <button
             type="button"
             role="switch"
@@ -103,7 +99,6 @@ export const RuleCard = ({ rule, onToggle, onDelete, isToggling }: RuleCardProps
             />
           </button>
 
-          {/* Botón Eliminar */}
           <button
             type="button"
             onClick={() => onDelete(rule.id)}
@@ -117,7 +112,6 @@ export const RuleCard = ({ rule, onToggle, onDelete, isToggling }: RuleCardProps
         </div>
       </div>
 
-      {/* Badges de Resultado */}
       <div className="flex items-center gap-2 mt-3 pt-3 border-t border-stone-100 dark:border-stone-700/60 text-xs">
         <span className="text-stone-400 dark:text-stone-500 text-[11px]">{t('governance.resultingAction')}</span>
         <span className={`px-2 py-0.5 rounded text-[10px] font-bold border ${getStatusBadge()}`}>

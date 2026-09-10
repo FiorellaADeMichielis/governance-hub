@@ -99,7 +99,7 @@ export const AuditLogsView = ({ flows, isLoading }: AuditLogsViewProps) => {
             ) : (
               filteredFlows.map((flow) => (
                 <tr key={flow.id} className="hover:bg-stone-50 dark:hover:bg-neutral-800 transition-colors">
-                  <td className="p-4 font-mono text-stone-500 dark:text-stone-400 truncate max-w-[140px]">
+                  <td className="p-4 font-mono text-stone-500 dark:text-stone-400 truncate max-w-35">
                     {flow.id}
                   </td>
                   <td className="p-4 font-medium text-stone-900 dark:text-stone-100 capitalize">

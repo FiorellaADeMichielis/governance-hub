@@ -24,7 +24,6 @@ export class ReviewFlowUseCase {
         flow.markForReview(dto.reason || 'Sent to manual review');
       }
     } catch (error: any) {
-      // Atrapmos el error genérico del dominio como un 400 Bad Request
       throw new BadRequestException(error.message);
     }
 

@@ -25,7 +25,6 @@ export const AuthLayout = ({
 
   return (
     <div className="min-h-screen bg-stone-100 dark:bg-neutral-950 flex flex-col items-center justify-center p-4 transition-colors relative">
-      {/* Barra superior de controles: Idioma y Tema */}
       <div className="absolute top-6 right-6 flex items-center gap-2.5">
         <LanguageSelector />
         
@@ -40,9 +39,7 @@ export const AuthLayout = ({
         </button>
       </div>
 
-      {/* Tarjeta principal */}
       <div className="w-full max-w-md bg-white dark:bg-stone-900 rounded-2xl shadow-xl border border-stone-200 dark:border-stone-800 overflow-hidden transition-colors">
-        {/* Cabecera institucional */}
         <header className="bg-stone-900 dark:bg-neutral-900 p-8 text-center border-b border-stone-800">
           <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-orange-600 text-white font-bold text-xl mb-3 shadow-lg shadow-orange-600/30">
             GH
@@ -53,13 +50,11 @@ export const AuthLayout = ({
           </p>
         </header>
 
-        {/* Slot de contenido (Formulario) */}
         <main className="p-8">
           {children}
         </main>
       </div>
 
-      {/* Pie de página de seguridad */}
       <footer className="mt-6 text-center text-xs text-stone-500 dark:text-stone-500">
         <p>{t('auth.footerText')}</p>
       </footer>

@@ -71,8 +71,6 @@ export class FlowsController {
     };
   }
 
-  // CONSUMER
-  // Este método es llamado internamente por RabbitMQ
   @EventPattern('flow.webhook.received') 
   async handleFlowWebhook(@Payload() payload: any) {
     console.log(`\n [RabbitMQ] ¡PROCESANDO WEBHOOK!`);
@@ -94,7 +92,6 @@ export class FlowsController {
     }
   }
 
-  // Solo los administradores (ACT-01) pueden revisar, aprobar o bloquear (RF-07 RBAC Estricto).
   @ApiBearerAuth()
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(UserRole.ADMIN)

@@ -44,7 +44,6 @@ export class GovernanceRule {
     this.updatedAt = updatedAt;
   }
 
-  // Getters
   getId(): string { return this.id; }
   getName(): string { return this.name; }
   getDescription(): string { return this.description; }
@@ -58,7 +57,6 @@ export class GovernanceRule {
   getCreatedAt(): Date { return this.createdAt; }
   getUpdatedAt(): Date { return this.updatedAt; }
 
-  // Métodos de Dominio
   public activate(): void {
     this.isActive = true;
     this.markAsUpdated();

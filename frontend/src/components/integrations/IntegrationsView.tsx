@@ -155,7 +155,7 @@ export const IntegrationsView = () => {
         ))}
       </div>
 
-      {/* Webhook Specification & cURL tester */}
+      {/* Especificación de Webhook y cURL tester */}
       <div className="p-5 bg-white dark:bg-stone-800 rounded-xl border border-stone-200 dark:border-stone-700 shadow-sm space-y-4">
         <div className="flex items-center justify-between">
           <div>

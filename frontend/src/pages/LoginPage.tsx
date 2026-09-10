@@ -12,11 +12,6 @@ interface LoginPageProps {
   onLoginSuccess: (user: UserSession) => void;
 }
 
-/**
- * Smart Component (Container):
- * Orquesta la autenticación delegando la vista a AuthLayout y LoginForm,
- * y la comunicación de red a AuthService.
- */
 export const LoginPage = ({ onLoginSuccess }: LoginPageProps) => {
   const { isDark, toggleTheme } = useTheme();
   const { t } = useTranslation();

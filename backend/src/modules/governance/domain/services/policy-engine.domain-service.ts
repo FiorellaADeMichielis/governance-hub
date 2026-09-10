@@ -66,7 +66,6 @@ export class PolicyEngineDomainService {
         });
         reasons.push(reason);
 
-        // Si la regla impone un bloqueo definitivo (BLOCKED), se detiene la cadena inmediatamente
         if (rule.getResultingStatus() === FlowStatus.BLOCKED) {
           break;
         }
@@ -83,7 +82,6 @@ export class PolicyEngineDomainService {
       };
     }
 
-    // Determina el estado y riesgo más restrictivo entre las reglas que hicieron match
     let finalStatus = FlowStatus.PENDING;
     let maxStatusSeverity = -1;
 
@@ -133,7 +131,6 @@ export class PolicyEngineDomainService {
       return context.metadata ? context.metadata[subKey] : undefined;
     }
 
-    // Intenta buscar la clave directa en metadata
     if (context.metadata && context.metadata[targetField] !== undefined) {
       return context.metadata[targetField];
     }
