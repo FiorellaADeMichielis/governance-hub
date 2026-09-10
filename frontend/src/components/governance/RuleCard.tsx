@@ -1,4 +1,5 @@
 import type { GovernanceRule } from '../../types/governance.types';
+import { useTranslation } from '../../i18n/useTranslation';
 
 interface RuleCardProps {
   rule: GovernanceRule;
@@ -8,6 +9,8 @@ interface RuleCardProps {
 }
 
 export const RuleCard = ({ rule, onToggle, onDelete, isToggling }: RuleCardProps) => {
+  const { t } = useTranslation();
+
   const getStatusBadge = () => {
     switch (rule.resultingStatus) {
       case 'BLOCKED':
@@ -34,18 +37,28 @@ export const RuleCard = ({ rule, onToggle, onDelete, isToggling }: RuleCardProps
     }
   };
 
+  const statusLabel = () => {
+    switch (rule.resultingStatus) {
+      case 'APPROVED': return t('dashboard.statusApproved');
+      case 'BLOCKED': return t('dashboard.statusBlocked');
+      case 'RISKY': return t('dashboard.statusRisky');
+      case 'UNDER_REVIEW': return t('dashboard.statusUnderReview');
+      default: return rule.resultingStatus;
+    }
+  };
+
   return (
     <div className={`p-5 rounded-xl border transition-all ${
       rule.isActive 
-        ? 'bg-white dark:bg-stone-900 border-stone-200 dark:border-stone-800 shadow-sm' 
+        ? 'bg-white dark:bg-stone-800 border-stone-200 dark:border-stone-700 shadow-sm' 
         : 'bg-stone-50/70 dark:bg-stone-900/40 border-stone-200/60 dark:border-stone-800/40 opacity-70'
     }`}>
       <div className="flex items-start justify-between gap-4">
         {/* Encabezado y Descripción */}
         <div className="flex-1">
           <div className="flex items-center gap-2 mb-1.5">
-            <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300 border border-stone-200 dark:border-stone-700">
-              PRIORIDAD {rule.priority}
+            <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-stone-100 dark:bg-neutral-900 text-stone-600 dark:text-stone-300 border border-stone-200 dark:border-stone-700">
+              {t('governance.priorityBadge', { priority: rule.priority })}
             </span>
             <h3 className="font-semibold text-sm text-stone-900 dark:text-stone-100">
               {rule.name}
@@ -56,8 +69,8 @@ export const RuleCard = ({ rule, onToggle, onDelete, isToggling }: RuleCardProps
           </p>
 
           {/* Condición de la regla */}
-          <div className="flex flex-wrap items-center gap-2 p-2.5 rounded-lg bg-stone-50 dark:bg-neutral-950 border border-stone-200/80 dark:border-stone-800/80 font-mono text-xs">
-            <span className="text-stone-500 dark:text-stone-400 font-sans text-[11px]">Si</span>
+          <div className="flex flex-wrap items-center gap-2 p-2.5 rounded-lg bg-stone-50 dark:bg-neutral-900 border border-stone-200/80 dark:border-stone-700 font-mono text-xs">
+            <span className="text-stone-500 dark:text-stone-400 font-sans text-[11px]">{t('governance.ifCondition')}</span>
             <span className="px-1.5 py-0.5 rounded bg-white dark:bg-stone-800 text-orange-600 dark:text-orange-400 font-semibold border border-stone-200 dark:border-stone-700">
               {rule.targetField}
             </span>
@@ -94,8 +107,8 @@ export const RuleCard = ({ rule, onToggle, onDelete, isToggling }: RuleCardProps
           <button
             type="button"
             onClick={() => onDelete(rule.id)}
-            title="Eliminar regla"
-            className="text-xs text-stone-400 hover:text-red-600 dark:hover:text-red-400 transition-colors p-1"
+            title={t('governance.deleteRule')}
+            className="text-xs text-stone-400 hover:text-red-600 dark:hover:text-red-400 transition-colors p-1 rounded hover:bg-red-50 dark:hover:bg-neutral-900"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -105,10 +118,10 @@ export const RuleCard = ({ rule, onToggle, onDelete, isToggling }: RuleCardProps
       </div>
 
       {/* Badges de Resultado */}
-      <div className="flex items-center gap-2 mt-3 pt-3 border-t border-stone-100 dark:border-stone-800/60 text-xs">
-        <span className="text-stone-400 dark:text-stone-500 text-[11px]">Acción resultante:</span>
+      <div className="flex items-center gap-2 mt-3 pt-3 border-t border-stone-100 dark:border-stone-700/60 text-xs">
+        <span className="text-stone-400 dark:text-stone-500 text-[11px]">{t('governance.resultingAction')}</span>
         <span className={`px-2 py-0.5 rounded text-[10px] font-bold border ${getStatusBadge()}`}>
-          {rule.resultingStatus}
+          {statusLabel()}
         </span>
         <span className={`px-1.5 py-0.2 rounded text-[10px] ${getRiskBadge()}`}>
           {rule.resultingRiskLevel}

@@ -7,6 +7,7 @@ import {
   IconCheck, 
   IconCopy 
 } from '../common/Icons';
+import { useTranslation } from '../../i18n/useTranslation';
 
 interface IntegrationConnector {
   id: string;
@@ -17,10 +18,11 @@ interface IntegrationConnector {
   eventsProcessed: number;
   avgLatency: string;
   authMethod: string;
-  description: string;
+  descriptionKey: 'zapierDesc' | 'makeDesc' | 'n8nDesc' | 'powerAutomateDesc';
 }
 
 export const IntegrationsView = () => {
+  const { t } = useTranslation();
   const [copied, setCopied] = useState(false);
 
   const connectors: IntegrationConnector[] = [
@@ -33,7 +35,7 @@ export const IntegrationsView = () => {
       eventsProcessed: 1420,
       avgLatency: '18ms',
       authMethod: 'Webhook Shared Secret (HMAC)',
-      description: 'Captura disparadores (Triggers) y acciones de salida como Webhooks, Gmail, Slack y Google Sheets.',
+      descriptionKey: 'zapierDesc',
     },
     {
       id: 'make',
@@ -44,7 +46,7 @@ export const IntegrationsView = () => {
       eventsProcessed: 980,
       avgLatency: '22ms',
       authMethod: 'Custom Header HMAC-SHA256',
-      description: 'Monitorea escenarios con enrutadores de datos sensibles, Airtable, CRM y transferencias de archivos.',
+      descriptionKey: 'makeDesc',
     },
     {
       id: 'n8n',
@@ -55,7 +57,7 @@ export const IntegrationsView = () => {
       eventsProcessed: 650,
       avgLatency: '14ms',
       authMethod: 'Bearer Token + IP Whitelist',
-      description: 'Intercepta workflows automáticos internos, nodos comunitarios y consultas a bases de datos SQL.',
+      descriptionKey: 'n8nDesc',
     },
     {
       id: 'power-automate',
@@ -66,7 +68,7 @@ export const IntegrationsView = () => {
       eventsProcessed: 410,
       avgLatency: '28ms',
       authMethod: 'Azure AD OAuth 2.0',
-      description: 'Auditoría de flujos corporativos en la nube y conectores para SharePoint, Dataverse y MS Teams.',
+      descriptionKey: 'powerAutomateDesc',
     },
   ];
 
@@ -94,16 +96,16 @@ export const IntegrationsView = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl font-bold text-stone-900 dark:text-stone-50">
-            Conectores e Integraciones LCNC
+            {t('integrations.title')}
           </h2>
           <p className="text-xs text-stone-500 dark:text-stone-400 mt-1">
-            Plataformas conectadas que transmiten flujos y eventos al motor de auditoría asíncrono
+            {t('integrations.subtitle')}
           </p>
         </div>
 
         <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 text-emerald-700 dark:text-emerald-400 text-xs font-semibold">
           <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-          <span>4 Conectores en Línea</span>
+          <span>{t('integrations.connectorsOnline')}</span>
         </div>
       </div>
 
@@ -116,7 +118,7 @@ export const IntegrationsView = () => {
           >
             <div className="flex items-start justify-between">
               <div className="flex items-center gap-3">
-                <div className="p-2.5 bg-stone-100 dark:bg-stone-900 rounded-xl text-stone-700 dark:text-stone-300">
+                <div className="p-2.5 bg-stone-100 dark:bg-neutral-900 rounded-xl text-stone-700 dark:text-stone-300">
                   {c.icon('w-5 h-5')}
                 </div>
                 <div>
@@ -127,25 +129,25 @@ export const IntegrationsView = () => {
 
               <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-semibold text-emerald-700 bg-emerald-100 dark:bg-emerald-500/20 dark:text-emerald-400 rounded-full">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                Activo
+                {t('common.active')}
               </span>
             </div>
 
-            <p className="mt-3 text-xs text-stone-600 dark:text-stone-300 line-clamp-2">
-              {c.description}
+            <p className="mt-3 text-xs text-stone-600 dark:text-stone-300 line-clamp-2 leading-relaxed">
+              {t(`integrations.${c.descriptionKey}` as any)}
             </p>
 
             <div className="mt-4 pt-3 border-t border-stone-100 dark:border-stone-700/60 grid grid-cols-3 gap-2 text-center text-xs">
-              <div className="bg-stone-50 dark:bg-stone-900/50 p-2 rounded-lg">
-                <div className="text-[10px] text-stone-500 dark:text-stone-400 font-medium">Eventos</div>
+              <div className="bg-stone-50 dark:bg-neutral-900/50 p-2 rounded-lg">
+                <div className="text-[10px] text-stone-500 dark:text-stone-400 font-medium">{t('integrations.eventsProcessed')}</div>
                 <div className="font-bold text-stone-900 dark:text-stone-100 mt-0.5">{c.eventsProcessed}</div>
               </div>
-              <div className="bg-stone-50 dark:bg-stone-900/50 p-2 rounded-lg">
-                <div className="text-[10px] text-stone-500 dark:text-stone-400 font-medium">Latencia</div>
+              <div className="bg-stone-50 dark:bg-neutral-900/50 p-2 rounded-lg">
+                <div className="text-[10px] text-stone-500 dark:text-stone-400 font-medium">{t('integrations.avgLatency')}</div>
                 <div className="font-bold text-stone-900 dark:text-stone-100 mt-0.5">{c.avgLatency}</div>
               </div>
-              <div className="bg-stone-50 dark:bg-stone-900/50 p-2 rounded-lg">
-                <div className="text-[10px] text-stone-500 dark:text-stone-400 font-medium">Seguridad</div>
+              <div className="bg-stone-50 dark:bg-neutral-900/50 p-2 rounded-lg">
+                <div className="text-[10px] text-stone-500 dark:text-stone-400 font-medium">{t('integrations.security')}</div>
                 <div className="font-bold text-emerald-600 dark:text-emerald-400 mt-0.5 text-[11px]">HMAC / SHA</div>
               </div>
             </div>
@@ -160,49 +162,50 @@ export const IntegrationsView = () => {
             <div className="flex items-center gap-2">
               <IconZap className="w-4 h-4 text-orange-600 dark:text-orange-400" />
               <h3 className="text-sm font-bold text-stone-900 dark:text-stone-50">
-                Protocolo de Ingesta Asíncrona de Webhooks
+                {t('integrations.webhookTitle')}
               </h3>
             </div>
-            <p className="text-xs text-stone-500 dark:text-stone-400 mt-0.5">
-              Cualquier plataforma o script puede enviar automatizaciones para auditoría. El servidor responde inmediatamente (<span className="text-orange-600 dark:text-orange-400 font-mono font-bold">HTTP 202 Accepted</span>) y evalúa mediante RabbitMQ.
-            </p>
+            <p 
+              className="text-xs text-stone-500 dark:text-stone-400 mt-0.5" 
+              dangerouslySetInnerHTML={{ __html: t('integrations.webhookSubtitle') }}
+            />
           </div>
 
           <button
             type="button"
             onClick={copyToClipboard}
-            className="px-3 py-1.5 text-xs font-semibold bg-stone-100 hover:bg-stone-200 dark:bg-stone-700 dark:hover:bg-stone-600 text-stone-800 dark:text-stone-200 rounded-lg transition-colors flex items-center gap-1.5"
+            className="px-3 py-1.5 text-xs font-semibold bg-stone-100 hover:bg-stone-200 dark:bg-stone-700 dark:hover:bg-stone-600 text-stone-800 dark:text-stone-200 rounded-lg transition-colors flex items-center gap-1.5 shadow-xs"
           >
             {copied ? (
               <>
                 <IconCheck className="w-3.5 h-3.5 text-emerald-500" />
-                <span>Copiado</span>
+                <span>{t('integrations.copied')}</span>
               </>
             ) : (
               <>
                 <IconCopy className="w-3.5 h-3.5" />
-                <span>Copiar cURL</span>
+                <span>{t('integrations.copyCurl')}</span>
               </>
             )}
           </button>
         </div>
 
-        <pre className="p-3.5 bg-stone-900 text-stone-200 text-xs font-mono rounded-lg overflow-x-auto border border-stone-800 leading-relaxed">
+        <pre className="p-3.5 bg-neutral-950 text-stone-200 text-xs font-mono rounded-lg overflow-x-auto border border-stone-800 leading-relaxed">
           {samplePayload}
         </pre>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 text-xs">
           <div className="flex items-center gap-2 text-stone-600 dark:text-stone-400">
             <IconCheck className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
-            <span>SLA &lt; 100ms sin bloqueo</span>
+            <span>{t('integrations.bullet1')}</span>
           </div>
           <div className="flex items-center gap-2 text-stone-600 dark:text-stone-400">
             <IconCheck className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
-            <span>Cola de mensajes RabbitMQ persistente</span>
+            <span>{t('integrations.bullet2')}</span>
           </div>
           <div className="flex items-center gap-2 text-stone-600 dark:text-stone-400">
             <IconCheck className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
-            <span>Transmisión WebSocket en tiempo real</span>
+            <span>{t('integrations.bullet3')}</span>
           </div>
         </div>
       </div>

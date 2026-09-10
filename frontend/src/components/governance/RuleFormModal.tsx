@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { CreateGovernanceRulePayload, RuleOperator } from '../../types/governance.types';
 import { IconClose } from '../common/Icons';
+import { useTranslation } from '../../i18n/useTranslation';
 
 interface RuleFormModalProps {
   isOpen: boolean;
@@ -10,6 +11,7 @@ interface RuleFormModalProps {
 }
 
 export const RuleFormModal = ({ isOpen, onClose, onSubmit, isLoading }: RuleFormModalProps) => {
+  const { t } = useTranslation();
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [targetField, setTargetField] = useState('metadata');
@@ -25,7 +27,7 @@ export const RuleFormModal = ({ isOpen, onClose, onSubmit, isLoading }: RuleForm
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim() || !description.trim() || !expectedValue.trim()) {
-      setError('Por favor completa todos los campos requeridos.');
+      setError(t('ruleForm.validationError'));
       return;
     }
 
@@ -47,27 +49,27 @@ export const RuleFormModal = ({ isOpen, onClose, onSubmit, isLoading }: RuleForm
       setExpectedValue('');
       onClose();
     } catch (err: any) {
-      setError(err.message || 'Error al guardar la regla');
+      setError(err.message || t('governance.toggleError'));
     }
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-950/60 backdrop-blur-sm animate-fadeIn">
-      <div className="bg-white dark:bg-stone-900 w-full max-w-lg rounded-2xl shadow-2xl border border-stone-200 dark:border-stone-800 overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-950/60 backdrop-blur-xs animate-fadeIn">
+      <div className="bg-white dark:bg-stone-800 w-full max-w-lg rounded-2xl shadow-2xl border border-stone-200 dark:border-stone-700 overflow-hidden">
         {/* Cabecera */}
-        <div className="p-6 border-b border-stone-200 dark:border-stone-800 flex items-center justify-between">
+        <div className="p-6 border-b border-stone-200 dark:border-stone-700 flex items-center justify-between">
           <div>
             <h3 className="text-lg font-bold text-stone-900 dark:text-stone-50">
-              Crear Política de Gobernanza
+              {t('ruleForm.modalTitle')}
             </h3>
             <p className="text-xs text-stone-500 dark:text-stone-400 mt-0.5">
-              Define una regla que evaluará automáticamente los webhooks encolados
+              {t('ruleForm.modalSubtitle')}
             </p>
           </div>
           <button
             onClick={onClose}
             type="button"
-            className="text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 p-1"
+            className="text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 p-1 rounded-lg transition-colors"
           >
             <IconClose className="w-4 h-4" />
           </button>
@@ -83,29 +85,29 @@ export const RuleFormModal = ({ isOpen, onClose, onSubmit, isLoading }: RuleForm
 
           <div>
             <label className="block text-xs font-semibold text-stone-700 dark:text-stone-300 mb-1">
-              Nombre de la Regla *
+              {t('ruleForm.nameLabel')}
             </label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="ej. Bloqueo de Tarjetas de Crédito"
+              placeholder={t('ruleForm.namePlaceholder')}
               required
-              className="w-full px-3 py-2 text-sm bg-stone-50 dark:bg-stone-800 border border-stone-300 dark:border-stone-700 rounded-lg text-stone-900 dark:text-stone-100 focus:ring-1 focus:ring-orange-500 focus:border-orange-500"
+              className="w-full px-3 py-2 text-sm bg-stone-50 dark:bg-neutral-900 border border-stone-300 dark:border-stone-700 rounded-lg text-stone-900 dark:text-stone-100 placeholder-stone-400 dark:placeholder-stone-500 focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-colors"
             />
           </div>
 
           <div>
             <label className="block text-xs font-semibold text-stone-700 dark:text-stone-300 mb-1">
-              Descripción / Justificación de Seguridad *
+              {t('ruleForm.descLabel')}
             </label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Explica qué riesgo mitiga esta regla..."
+              placeholder={t('ruleForm.descPlaceholder')}
               rows={2}
               required
-              className="w-full px-3 py-2 text-sm bg-stone-50 dark:bg-stone-800 border border-stone-300 dark:border-stone-700 rounded-lg text-stone-900 dark:text-stone-100 focus:ring-1 focus:ring-orange-500 focus:border-orange-500 resize-none"
+              className="w-full px-3 py-2 text-sm bg-stone-50 dark:bg-neutral-900 border border-stone-300 dark:border-stone-700 rounded-lg text-stone-900 dark:text-stone-100 placeholder-stone-400 dark:placeholder-stone-500 focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 resize-none transition-colors"
             />
           </div>
 
@@ -113,48 +115,48 @@ export const RuleFormModal = ({ isOpen, onClose, onSubmit, isLoading }: RuleForm
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-semibold text-stone-700 dark:text-stone-300 mb-1">
-                Campo a Evaluar *
+                {t('ruleForm.fieldLabel')}
               </label>
               <select
                 value={targetField}
                 onChange={(e) => setTargetField(e.target.value)}
-                className="w-full px-3 py-2 text-xs bg-stone-50 dark:bg-stone-800 border border-stone-300 dark:border-stone-700 rounded-lg text-stone-900 dark:text-stone-100 focus:ring-1 focus:ring-orange-500 focus:border-orange-500"
+                className="w-full px-3 py-2 text-xs bg-stone-50 dark:bg-neutral-900 border border-stone-300 dark:border-stone-700 rounded-lg text-stone-900 dark:text-stone-100 focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-colors"
               >
-                <option value="metadata">metadata (Payload completo)</option>
-                <option value="departmentId">departmentId (Departamento)</option>
-                <option value="platformId">platformId (Plataforma LCNC)</option>
+                <option value="metadata" className="bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100">metadata (Payload)</option>
+                <option value="departmentId" className="bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100">departmentId</option>
+                <option value="platformId" className="bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100">platformId</option>
               </select>
             </div>
 
             <div>
               <label className="block text-xs font-semibold text-stone-700 dark:text-stone-300 mb-1">
-                Operador Lógico *
+                {t('ruleForm.operatorLabel')}
               </label>
               <select
                 value={operator}
                 onChange={(e) => setOperator(e.target.value as RuleOperator)}
-                className="w-full px-3 py-2 text-xs bg-stone-50 dark:bg-stone-800 border border-stone-300 dark:border-stone-700 rounded-lg text-stone-900 dark:text-stone-100 focus:ring-1 focus:ring-orange-500 focus:border-orange-500"
+                className="w-full px-3 py-2 text-xs bg-stone-50 dark:bg-neutral-900 border border-stone-300 dark:border-stone-700 rounded-lg text-stone-900 dark:text-stone-100 focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-colors"
               >
-                <option value="CONTAINS">CONTAINS (Contiene palabras)</option>
-                <option value="EQUALS">EQUALS (Igual a)</option>
-                <option value="NOT_EQUALS">NOT_EQUALS (Diferente de)</option>
-                <option value="IN_LIST">IN_LIST (En lista separada por comas)</option>
-                <option value="REGEX">REGEX (Expresión Regular)</option>
+                <option value="CONTAINS" className="bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100">CONTAINS</option>
+                <option value="EQUALS" className="bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100">EQUALS</option>
+                <option value="NOT_EQUALS" className="bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100">NOT_EQUALS</option>
+                <option value="IN_LIST" className="bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100">IN_LIST</option>
+                <option value="REGEX" className="bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100">REGEX</option>
               </select>
             </div>
           </div>
 
           <div>
             <label className="block text-xs font-semibold text-stone-700 dark:text-stone-300 mb-1">
-              Valor Esperado / Términos de Coincidencia *
+              {t('ruleForm.valueLabel')}
             </label>
             <input
               type="text"
               value={expectedValue}
               onChange={(e) => setExpectedValue(e.target.value)}
-              placeholder="ej. password, token, api_key (separados por coma)"
+              placeholder={t('ruleForm.valuePlaceholder')}
               required
-              className="w-full px-3 py-2 text-sm bg-stone-50 dark:bg-stone-800 border border-stone-300 dark:border-stone-700 rounded-lg text-stone-900 dark:text-stone-100 focus:ring-1 focus:ring-orange-500 focus:border-orange-500 font-mono text-xs"
+              className="w-full px-3 py-2 text-xs bg-stone-50 dark:bg-neutral-900 border border-stone-300 dark:border-stone-700 rounded-lg text-stone-900 dark:text-stone-100 placeholder-stone-400 dark:placeholder-stone-500 focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 font-mono transition-colors"
             />
           </div>
 
@@ -162,39 +164,39 @@ export const RuleFormModal = ({ isOpen, onClose, onSubmit, isLoading }: RuleForm
           <div className="grid grid-cols-3 gap-3">
             <div>
               <label className="block text-xs font-semibold text-stone-700 dark:text-stone-300 mb-1">
-                Estado si coincide
+                {t('ruleForm.statusLabel')}
               </label>
               <select
                 value={resultingStatus}
                 onChange={(e) => setResultingStatus(e.target.value as any)}
-                className="w-full px-3 py-2 text-xs bg-stone-50 dark:bg-stone-800 border border-stone-300 dark:border-stone-700 rounded-lg text-stone-900 dark:text-stone-100 focus:ring-1 focus:ring-orange-500 focus:border-orange-500"
+                className="w-full px-3 py-2 text-xs bg-stone-50 dark:bg-neutral-900 border border-stone-300 dark:border-stone-700 rounded-lg text-stone-900 dark:text-stone-100 focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-colors"
               >
-                <option value="RISKY">RISKY (Riesgoso)</option>
-                <option value="BLOCKED">BLOCKED (Bloquear)</option>
-                <option value="UNDER_REVIEW">UNDER_REVIEW (Revisar)</option>
-                <option value="APPROVED">APPROVED (Aprobar)</option>
+                <option value="RISKY" className="bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100">{t('dashboard.statusRisky')}</option>
+                <option value="BLOCKED" className="bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100">{t('dashboard.statusBlocked')}</option>
+                <option value="UNDER_REVIEW" className="bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100">{t('dashboard.statusUnderReview')}</option>
+                <option value="APPROVED" className="bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100">{t('dashboard.statusApproved')}</option>
               </select>
             </div>
 
             <div>
               <label className="block text-xs font-semibold text-stone-700 dark:text-stone-300 mb-1">
-                Nivel de Riesgo
+                {t('ruleForm.riskLabel')}
               </label>
               <select
                 value={resultingRiskLevel}
                 onChange={(e) => setResultingRiskLevel(e.target.value as any)}
-                className="w-full px-3 py-2 text-xs bg-stone-50 dark:bg-stone-800 border border-stone-300 dark:border-stone-700 rounded-lg text-stone-900 dark:text-stone-100 focus:ring-1 focus:ring-orange-500 focus:border-orange-500"
+                className="w-full px-3 py-2 text-xs bg-stone-50 dark:bg-neutral-900 border border-stone-300 dark:border-stone-700 rounded-lg text-stone-900 dark:text-stone-100 focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-colors"
               >
-                <option value="CRITICAL">CRITICAL</option>
-                <option value="HIGH">HIGH</option>
-                <option value="MEDIUM">MEDIUM</option>
-                <option value="LOW">LOW</option>
+                <option value="CRITICAL" className="bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100">CRITICAL</option>
+                <option value="HIGH" className="bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100">HIGH</option>
+                <option value="MEDIUM" className="bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100">MEDIUM</option>
+                <option value="LOW" className="bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100">LOW</option>
               </select>
             </div>
 
             <div>
               <label className="block text-xs font-semibold text-stone-700 dark:text-stone-300 mb-1">
-                Prioridad (1-99)
+                {t('ruleForm.priorityLabel')}
               </label>
               <input
                 type="number"
@@ -202,26 +204,26 @@ export const RuleFormModal = ({ isOpen, onClose, onSubmit, isLoading }: RuleForm
                 max="99"
                 value={priority}
                 onChange={(e) => setPriority(Number(e.target.value))}
-                className="w-full px-3 py-2 text-xs bg-stone-50 dark:bg-stone-800 border border-stone-300 dark:border-stone-700 rounded-lg text-stone-900 dark:text-stone-100 focus:ring-1 focus:ring-orange-500 focus:border-orange-500"
+                className="w-full px-3 py-2 text-xs bg-stone-50 dark:bg-neutral-900 border border-stone-300 dark:border-stone-700 rounded-lg text-stone-900 dark:text-stone-100 focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-colors"
               />
             </div>
           </div>
 
           {/* Botones de acción */}
-          <div className="flex items-center justify-end gap-3 pt-4 border-t border-stone-200 dark:border-stone-800">
+          <div className="flex items-center justify-end gap-3 pt-4 border-t border-stone-200 dark:border-stone-700">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-xs font-medium text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 rounded-lg transition-colors"
+              className="px-4 py-2 text-xs font-medium text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-neutral-800 rounded-lg transition-colors"
             >
-              Cancelar
+              {t('common.cancel')}
             </button>
             <button
               type="submit"
               disabled={isLoading}
-              className="px-4 py-2 text-xs font-semibold bg-orange-600 hover:bg-orange-700 text-white rounded-lg transition-colors disabled:opacity-50"
+              className="px-4 py-2 text-xs font-semibold bg-orange-600 hover:bg-orange-700 active:bg-orange-800 text-white rounded-lg transition-colors disabled:opacity-50 shadow-xs"
             >
-              {isLoading ? 'Guardando...' : 'Crear Regla'}
+              {isLoading ? t('ruleForm.saving') : t('ruleForm.createRule')}
             </button>
           </div>
         </form>

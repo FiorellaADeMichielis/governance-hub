@@ -30,7 +30,7 @@ export const Sidebar = ({
   currentSection = 'dashboard',
   onNavigate,
 }: SidebarProps) => {
-  const { t } = useTranslation();
+  const { t, tDepartment } = useTranslation();
   const userInitial = user?.email ? user.email.charAt(0).toUpperCase() : 'U';
   const isAdmin = user?.role === 'ADMIN';
 
@@ -125,7 +125,7 @@ export const Sidebar = ({
                 </span>
                 {user.department && (
                   <span className="text-[11px] text-stone-400 dark:text-stone-500 truncate">
-                    {user.department}
+                    {tDepartment(user.department)}
                   </span>
                 )}
               </div>

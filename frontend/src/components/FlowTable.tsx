@@ -30,7 +30,7 @@ export const FlowTable = ({
   onPrevPage, 
   userRole = 'USER',
 }: FlowTableProps) => {
-  const { t } = useTranslation();
+  const { t, tDepartment } = useTranslation();
   const isAdmin = userRole === 'ADMIN';
 
   return (
@@ -53,7 +53,7 @@ export const FlowTable = ({
             flows.map((flow) => (
               <tr key={flow.id} className="hover:bg-stone-50 dark:hover:bg-neutral-800/60 transition-colors">
                 <td className="p-4 font-medium text-stone-900 dark:text-stone-50 capitalize">{flow.platformId}</td>
-                <td className="p-4 text-stone-600 dark:text-stone-400 capitalize">{flow.departmentId}</td>
+                <td className="p-4 text-stone-600 dark:text-stone-400 capitalize">{tDepartment(flow.departmentId)}</td>
                 <td className="p-4"><StatusBadge status={flow.status} /></td>
                 <td className="p-4 text-right space-x-2">
                   {isAdmin ? (

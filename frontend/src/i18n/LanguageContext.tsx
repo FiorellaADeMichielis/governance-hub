@@ -14,12 +14,14 @@ interface LanguageContextProps {
   language: SupportedLanguage;
   setLanguage: (lang: SupportedLanguage) => void;
   t: (path: string, params?: Record<string, string | number>) => string;
+  tDepartment: (dept?: string) => string;
 }
 
 export const LanguageContext = createContext<LanguageContextProps>({
   language: 'es',
   setLanguage: () => {},
   t: (path: string) => path,
+  tDepartment: (dept?: string) => dept || '',
 });
 
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -83,13 +85,30 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     [language]
   );
 
+  const tDepartment = useCallback(
+    (dept?: string): string => {
+      if (!dept) return '';
+      const norm = dept.toLowerCase().replace(/[\s\/\-_]+/g, '');
+      if (norm === 'finanzas' || norm === 'finance' || norm === 'financas') return t('departments.finance');
+      if (norm === 'marketing') return t('departments.marketing');
+      if (norm === 'operaciones' || norm === 'operations' || norm === 'operacoes') return t('departments.operations');
+      if (norm === 'legal' || norm === 'juridico') return t('departments.legal');
+      if (norm === 'itsecurity' || norm === 'it' || norm === 'ti' || norm === 'tiseguridad' || norm === 'tiseguranca') return t('departments.itSecurity');
+      if (norm === 'ventas' || norm === 'sales' || norm === 'vendas') return t('departments.sales');
+      if (norm === 'rrhh' || norm === 'hr' || norm === 'recursoshumanos') return t('departments.hr');
+      return dept;
+    },
+    [t]
+  );
+
   const contextValue = useMemo(
     () => ({
       language,
       setLanguage,
       t,
+      tDepartment,
     }),
-    [language, setLanguage, t]
+    [language, setLanguage, t, tDepartment]
   );
 
   return <LanguageContext.Provider value={contextValue}>{children}</LanguageContext.Provider>;

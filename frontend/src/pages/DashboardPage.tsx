@@ -19,7 +19,7 @@ interface DashboardPageProps {
 
 export const DashboardPage = ({ user, onLogout }: DashboardPageProps) => {
   const { isDark, toggleTheme } = useTheme();
-  const { t } = useTranslation();
+  const { t, tDepartment } = useTranslation();
   const isAdmin = user.role === 'ADMIN';
   const [currentSection, setCurrentSection] = useState<NavSection>('dashboard');
   const [flows, setFlows] = useState<Flow[]>([]);
@@ -180,7 +180,7 @@ export const DashboardPage = ({ user, onLogout }: DashboardPageProps) => {
                   ? 'bg-orange-100 text-orange-700 dark:bg-orange-500/20 dark:text-orange-400'
                   : 'bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-400'
               }`}>
-                {user.role} ({user.department})
+                {user.role} ({tDepartment(user.department)})
               </span>
             </div>
           </div>

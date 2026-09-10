@@ -6,12 +6,14 @@ import { RuleCard } from '../components/governance/RuleCard';
 import { RuleFormModal } from '../components/governance/RuleFormModal';
 import { RuleSimulatorModal } from '../components/governance/RuleSimulatorModal';
 import { IconPlay, IconPlus, IconInfo } from '../components/common/Icons';
+import { useTranslation } from '../i18n/useTranslation';
 
 interface GovernancePageProps {
   user: UserSession;
 }
 
 export const GovernancePage = ({ user }: GovernancePageProps) => {
+  const { t } = useTranslation();
   const [rules, setRules] = useState<GovernanceRule[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -29,11 +31,11 @@ export const GovernancePage = ({ user }: GovernancePageProps) => {
       const data = await GovernanceService.getRules();
       setRules(data);
     } catch (err: any) {
-      setError(err.message || 'Error al cargar las reglas de gobernanza');
+      setError(err.message || t('governance.loadingRules'));
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     fetchRules();
@@ -41,7 +43,7 @@ export const GovernancePage = ({ user }: GovernancePageProps) => {
 
   const handleToggle = async (id: string) => {
     if (!isAdmin) {
-      alert('Operación restringida: Solo el personal de TI / Seguridad puede modificar reglas.');
+      alert(t('governance.restrictedModify'));
       return;
     }
 
@@ -52,7 +54,7 @@ export const GovernancePage = ({ user }: GovernancePageProps) => {
         prev.map((r) => (r.id === id ? { ...r, isActive: res.isActive } : r)),
       );
     } catch (err: any) {
-      alert(err.message || 'Error al cambiar estado de la regla');
+      alert(err.message || t('governance.toggleError'));
     } finally {
       setTogglingId(null);
     }
@@ -60,18 +62,18 @@ export const GovernancePage = ({ user }: GovernancePageProps) => {
 
   const handleDelete = async (id: string) => {
     if (!isAdmin) {
-      alert('Operación restringida: Solo el personal de TI / Seguridad puede eliminar reglas.');
+      alert(t('governance.restrictedDelete'));
       return;
     }
 
-    const confirmDelete = window.confirm('¿Estás seguro de que deseas eliminar permanentemente esta política?');
+    const confirmDelete = window.confirm(t('governance.deleteRuleConfirm'));
     if (!confirmDelete) return;
 
     try {
       await GovernanceService.deleteRule(id);
       setRules((prev) => prev.filter((r) => r.id !== id));
     } catch (err: any) {
-      alert(err.message || 'Error al eliminar la regla');
+      alert(err.message || t('governance.deleteError'));
     }
   };
 
@@ -97,10 +99,10 @@ export const GovernancePage = ({ user }: GovernancePageProps) => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl font-bold text-stone-900 dark:text-stone-50">
-            Políticas de Gobernanza
+            {t('governance.title')}
           </h2>
           <p className="text-xs text-stone-500 dark:text-stone-400 mt-1">
-            Motor de reglas activas para clasificación y mitigación automática del Shadow IT
+            {t('governance.subtitle')}
           </p>
         </div>
 
@@ -109,10 +111,10 @@ export const GovernancePage = ({ user }: GovernancePageProps) => {
           <button
             type="button"
             onClick={() => setIsSimulatorOpen(true)}
-            className="px-3.5 py-2 text-xs font-semibold bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700 text-stone-900 dark:text-stone-100 border border-stone-200 dark:border-stone-700 rounded-lg transition-colors flex items-center gap-1.5 shadow-sm"
+            className="px-3.5 py-2 text-xs font-semibold bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700 text-stone-900 dark:text-stone-100 border border-stone-200 dark:border-stone-700 rounded-lg transition-colors flex items-center gap-1.5 shadow-xs"
           >
             <IconPlay className="w-3.5 h-3.5 text-orange-600 dark:text-orange-400" />
-            <span>Probar en Playground</span>
+            <span>{t('governance.playgroundBtn')}</span>
           </button>
 
           {/* Botón Nueva Regla (Solo Admin) */}
@@ -120,10 +122,10 @@ export const GovernancePage = ({ user }: GovernancePageProps) => {
             <button
               type="button"
               onClick={() => setIsCreateOpen(true)}
-              className="px-3.5 py-2 text-xs font-semibold bg-orange-600 hover:bg-orange-700 text-white rounded-lg transition-colors flex items-center gap-1.5 shadow-sm shadow-orange-600/20"
+              className="px-3.5 py-2 text-xs font-semibold bg-orange-600 hover:bg-orange-700 active:bg-orange-800 text-white rounded-lg transition-colors flex items-center gap-1.5 shadow-sm shadow-orange-600/20"
             >
               <IconPlus className="w-3.5 h-3.5" />
-              <span>Nueva Política</span>
+              <span>{t('governance.newPolicyBtn')}</span>
             </button>
           )}
         </div>
@@ -133,30 +135,28 @@ export const GovernancePage = ({ user }: GovernancePageProps) => {
       {!isAdmin && (
         <div className="p-3.5 bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/20 text-blue-700 dark:text-blue-300 text-xs rounded-xl flex items-center gap-2">
           <IconInfo className="w-4 h-4 shrink-0" />
-          <span>
-            Modo consulta: Tu cuenta posee permisos de auditoría de solo lectura. Solo el personal de TI / Seguridad puede crear, editar o pausar políticas.
-          </span>
+          <span>{t('governance.readOnlyBanner')}</span>
         </div>
       )}
 
       {/* Tarjetas de Métricas de Gobernanza */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="p-4 rounded-xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 shadow-sm">
-          <div className="text-xs font-medium text-stone-500 dark:text-stone-400">Total de Políticas</div>
+        <div className="p-4 rounded-xl bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 shadow-sm transition-colors">
+          <div className="text-xs font-medium text-stone-500 dark:text-stone-400">{t('governance.totalRulesMetric')}</div>
           <div className="text-2xl font-bold text-stone-900 dark:text-stone-50 mt-1">{totalRules}</div>
-          <div className="text-[11px] text-stone-400 dark:text-stone-500 mt-1">Configuradas en PostgreSQL</div>
+          <div className="text-[11px] text-stone-400 dark:text-stone-500 mt-1">{t('governance.totalRulesSub')}</div>
         </div>
 
-        <div className="p-4 rounded-xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 shadow-sm">
-          <div className="text-xs font-medium text-stone-500 dark:text-stone-400">Políticas Activas</div>
+        <div className="p-4 rounded-xl bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 shadow-sm transition-colors">
+          <div className="text-xs font-medium text-stone-500 dark:text-stone-400">{t('governance.activeRulesMetric')}</div>
           <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400 mt-1">{activeRules}</div>
-          <div className="text-[11px] text-stone-400 dark:text-stone-500 mt-1">Evaluadas por RabbitMQ en vivo</div>
+          <div className="text-[11px] text-stone-400 dark:text-stone-500 mt-1">{t('governance.activeRulesSub')}</div>
         </div>
 
-        <div className="p-4 rounded-xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 shadow-sm">
-          <div className="text-xs font-medium text-stone-500 dark:text-stone-400">Políticas Críticas / Bloqueo</div>
+        <div className="p-4 rounded-xl bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 shadow-sm transition-colors">
+          <div className="text-xs font-medium text-stone-500 dark:text-stone-400">{t('governance.criticalRulesMetric')}</div>
           <div className="text-2xl font-bold text-red-600 dark:text-red-400 mt-1">{criticalRules}</div>
-          <div className="text-[11px] text-stone-400 dark:text-stone-500 mt-1">Prevención de fuga de datos</div>
+          <div className="text-[11px] text-stone-400 dark:text-stone-500 mt-1">{t('governance.criticalRulesSub')}</div>
         </div>
       </div>
 
@@ -169,15 +169,15 @@ export const GovernancePage = ({ user }: GovernancePageProps) => {
 
       {isLoading ? (
         <div className="p-12 text-center text-xs text-stone-500 dark:text-stone-400">
-          Cargando políticas de gobernanza...
+          {t('governance.loadingRules')}
         </div>
       ) : rules.length === 0 ? (
         <div className="p-12 text-center border border-dashed border-stone-300 dark:border-stone-700 rounded-2xl">
           <p className="text-sm font-semibold text-stone-700 dark:text-stone-300">
-            No hay políticas configuradas
+            {t('governance.emptyRules')}
           </p>
           <p className="text-xs text-stone-500 dark:text-stone-400 mt-1">
-            Crea una nueva política para comenzar a evaluar los flujos entrantes.
+            {t('governance.emptyRulesSubtitle')}
           </p>
         </div>
       ) : (

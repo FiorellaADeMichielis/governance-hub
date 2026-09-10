@@ -3,6 +3,7 @@ import { AuthLayout } from '../components/layouts/AuthLayout';
 import { LoginForm } from '../components/auth/LoginForm';
 import { AuthService } from '../services/auth.service';
 import { useTheme } from '../hooks/useTheme';
+import { useTranslation } from '../i18n/useTranslation';
 import type { UserSession, LoginCredentials } from '../types/auth.types';
 
 export type { UserSession };
@@ -18,6 +19,7 @@ interface LoginPageProps {
  */
 export const LoginPage = ({ onLoginSuccess }: LoginPageProps) => {
   const { isDark, toggleTheme } = useTheme();
+  const { t } = useTranslation();
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -31,7 +33,7 @@ export const LoginPage = ({ onLoginSuccess }: LoginPageProps) => {
     } catch (error) {
       const message = error instanceof Error 
         ? error.message 
-        : 'Error inesperado al conectar con el servidor';
+        : t('auth.unexpectedError');
       setErrorMessage(message);
     } finally {
       setIsLoading(false);

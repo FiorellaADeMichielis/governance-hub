@@ -25,6 +25,15 @@ export interface TranslationSchema {
     all: string;
     role: string;
   };
+  departments: {
+    marketing: string;
+    finance: string;
+    operations: string;
+    legal: string;
+    itSecurity: string;
+    sales: string;
+    hr: string;
+  };
   auth: {
     title: string;
     subtitle: string;
@@ -99,14 +108,24 @@ export interface TranslationSchema {
     activeRulesMetric: string;
     criticalRulesMetric: string;
     coverageMetric: string;
+    totalRulesMetric: string;
+    totalRulesSub: string;
+    activeRulesSub: string;
+    criticalRulesSub: string;
     searchPlaceholder: string;
     emptyRules: string;
+    emptyRulesSubtitle: string;
     loadingRules: string;
     priorityBadge: string;
     ifCondition: string;
     resultingAction: string;
     deleteRuleConfirm: string;
+    deleteRule: string;
     ruleCreatedSuccess: string;
+    restrictedModify: string;
+    restrictedDelete: string;
+    toggleError: string;
+    deleteError: string;
   };
   ruleForm: {
     modalTitle: string;

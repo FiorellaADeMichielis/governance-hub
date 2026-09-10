@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { StatusBadge } from '../StatusBadge';
 import { type Flow } from '../FlowTable';
 import { IconSearch } from '../common/Icons';
+import { useTranslation } from '../../i18n/useTranslation';
 
 interface AuditLogsViewProps {
   flows: Flow[];
@@ -9,6 +10,7 @@ interface AuditLogsViewProps {
 }
 
 export const AuditLogsView = ({ flows, isLoading }: AuditLogsViewProps) => {
+  const { t, tDepartment } = useTranslation();
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('');
 
@@ -27,15 +29,15 @@ export const AuditLogsView = ({ flows, isLoading }: AuditLogsViewProps) => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl font-bold text-stone-900 dark:text-stone-50">
-            Registro de Auditoría & Trazabilidad
+            {t('auditLogs.title')}
           </h2>
           <p className="text-xs text-stone-500 dark:text-stone-400 mt-1">
-            Historial inmutable de eventos LCNC, evaluaciones del motor de reglas y decisiones administrativas
+            {t('auditLogs.subtitle')}
           </p>
         </div>
 
         <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-stone-100 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-xs text-stone-600 dark:text-stone-400">
-          <span>Total Registros:</span>
+          <span>{t('auditLogs.totalRecords')}</span>
           <span className="font-bold text-stone-900 dark:text-stone-50">{flows.length}</span>
         </div>
       </div>
@@ -48,23 +50,23 @@ export const AuditLogsView = ({ flows, isLoading }: AuditLogsViewProps) => {
           </span>
           <input
             type="text"
-            placeholder="Buscar por ID, plataforma o departamento..."
+            placeholder={t('auditLogs.searchPlaceholder')}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-lg text-sm text-stone-900 dark:text-stone-100 placeholder-stone-400 focus:outline-none focus:border-orange-500 transition-colors"
+            className="w-full pl-9 pr-4 py-2 bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-lg text-sm text-stone-900 dark:text-stone-100 placeholder-stone-400 dark:placeholder-stone-500 focus:outline-none focus:border-orange-500 transition-colors"
           />
         </div>
 
         <select
           value={filterStatus}
           onChange={(e) => setFilterStatus(e.target.value)}
-          className="px-4 py-2 bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-lg text-sm text-stone-900 dark:text-stone-100 focus:outline-none focus:border-orange-500 transition-colors"
+          className="px-4 py-2 bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-lg text-sm text-stone-900 dark:text-stone-100 focus:outline-none focus:border-orange-500 transition-colors cursor-pointer"
         >
-          <option value="">Todos los Estados</option>
-          <option value="APPROVED">Aprobados</option>
-          <option value="UNDER_REVIEW">En Revisión</option>
-          <option value="RISKY">Riesgosos</option>
-          <option value="BLOCKED">Bloqueados</option>
+          <option value="" className="bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100">{t('auditLogs.allStatuses')}</option>
+          <option value="APPROVED" className="bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100">{t('dashboard.approved')}</option>
+          <option value="UNDER_REVIEW" className="bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100">{t('dashboard.underReview')}</option>
+          <option value="RISKY" className="bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100">{t('dashboard.risky')}</option>
+          <option value="BLOCKED" className="bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100">{t('dashboard.blocked')}</option>
         </select>
       </div>
 
@@ -73,25 +75,25 @@ export const AuditLogsView = ({ flows, isLoading }: AuditLogsViewProps) => {
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="bg-stone-100 dark:bg-neutral-900 border-b border-stone-200 dark:border-stone-700 text-stone-500 dark:text-stone-400 text-xs uppercase tracking-wider">
-              <th className="p-4 font-semibold">ID Evento / Flujo</th>
-              <th className="p-4 font-semibold">Plataforma</th>
-              <th className="p-4 font-semibold">Departamento</th>
-              <th className="p-4 font-semibold">Evaluación</th>
-              <th className="p-4 font-semibold">Nivel de Riesgo</th>
-              <th className="p-4 font-semibold text-right">Mecanismo</th>
+              <th className="p-4 font-semibold">{t('auditLogs.colEventId')}</th>
+              <th className="p-4 font-semibold">{t('auditLogs.colPlatform')}</th>
+              <th className="p-4 font-semibold">{t('auditLogs.colDepartment')}</th>
+              <th className="p-4 font-semibold">{t('auditLogs.colEvaluation')}</th>
+              <th className="p-4 font-semibold">{t('auditLogs.colRisk')}</th>
+              <th className="p-4 font-semibold text-right">{t('auditLogs.colMechanism')}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-stone-200 dark:divide-stone-700 text-xs">
             {isLoading ? (
               <tr>
                 <td colSpan={6} className="p-8 text-center text-stone-500 dark:text-stone-400">
-                  Cargando trazabilidad de eventos...
+                  {t('auditLogs.loadingTraces')}
                 </td>
               </tr>
             ) : filteredFlows.length === 0 ? (
               <tr>
                 <td colSpan={6} className="p-8 text-center text-stone-500 dark:text-stone-400">
-                  No se encontraron registros que coincidan con la búsqueda.
+                  {t('auditLogs.emptySearch')}
                 </td>
               </tr>
             ) : (
@@ -104,7 +106,7 @@ export const AuditLogsView = ({ flows, isLoading }: AuditLogsViewProps) => {
                     {flow.platformId}
                   </td>
                   <td className="p-4 text-stone-600 dark:text-stone-300 capitalize">
-                    {flow.departmentId}
+                    {tDepartment(flow.departmentId)}
                   </td>
                   <td className="p-4">
                     <StatusBadge status={flow.status} />
@@ -124,7 +126,7 @@ export const AuditLogsView = ({ flows, isLoading }: AuditLogsViewProps) => {
                   </td>
                   <td className="p-4 text-right">
                     <span className="text-[11px] text-stone-400 dark:text-stone-500 font-mono">
-                      Policy Engine / Async
+                      {t('auditLogs.mechanismValue')}
                     </span>
                   </td>
                 </tr>
