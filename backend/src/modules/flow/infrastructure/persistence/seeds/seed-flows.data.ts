@@ -1,0 +1,168 @@
+import { v4 as uuidv4 } from 'uuid';
+import { RegisteredFlow } from '../../../domain/entities/registered-flow.entity';
+import { FlowStatus } from '../../../domain/enums/flow-status.enum';
+import { RiskLevel } from '../../../domain/enums/risk-level.enum';
+
+export function getInitialSeedFlows(): RegisteredFlow[] {
+  const now = Date.now();
+  const day = 24 * 60 * 60 * 1000;
+  const hour = 60 * 60 * 1000;
+
+  return [
+    new RegisteredFlow(
+      uuidv4(),
+      'zapier',
+      'finanzas',
+      FlowStatus.UNDER_REVIEW,
+      RiskLevel.MEDIUM,
+      {
+        flowName: 'Conciliación Bancaria Automática',
+        author: 'laura.finanzas@empresa.com',
+        trigger: 'bank.transaction.created',
+        action: 'quickbooks.sync_entry',
+        reviewReason: 'Aislamiento Preventivo de Finanzas',
+      },
+      new Date(now - 2 * hour),
+      new Date(now - 2 * hour),
+    ),
+    new RegisteredFlow(
+      uuidv4(),
+      'unknown_tool',
+      'operaciones',
+      FlowStatus.BLOCKED,
+      RiskLevel.CRITICAL,
+      {
+        flowName: 'Extracción No Homologada de Envíos',
+        author: 'externo.dev@partner.com',
+        trigger: 'webhook.incoming',
+        action: 'database.bulk_dump',
+        blockReason: 'Bloqueo de Plataformas No Homologadas',
+      },
+      new Date(now - 5 * hour),
+      new Date(now - 5 * hour),
+    ),
+    new RegisteredFlow(
+      uuidv4(),
+      'make',
+      'marketing',
+      FlowStatus.APPROVED,
+      RiskLevel.LOW,
+      {
+        flowName: 'Sincronización de Leads de HubSpot',
+        author: 'martin.marketing@empresa.com',
+        trigger: 'hubspot.contact.created',
+        action: 'mailchimp.add_subscriber',
+      },
+      new Date(now - 12 * hour),
+      new Date(now - 12 * hour),
+    ),
+    new RegisteredFlow(
+      uuidv4(),
+      'n8n',
+      'it',
+      FlowStatus.APPROVED,
+      RiskLevel.LOW,
+      {
+        flowName: 'Alertas de Incidentes Críticos de Jira',
+        author: 'devops@empresa.com',
+        trigger: 'jira.issue.priority_highest',
+        action: 'slack.post_security_alert',
+      },
+      new Date(now - 1 * day),
+      new Date(now - 1 * day),
+    ),
+    new RegisteredFlow(
+      uuidv4(),
+      'zapier',
+      'ventas',
+      FlowStatus.PENDING,
+      RiskLevel.LOW,
+      {
+        flowName: 'Ingreso de Oportunidades Salesforce',
+        author: 'carla.ventas@empresa.com',
+        trigger: 'salesforce.opportunity.updated',
+        action: 'notion.create_page',
+      },
+      new Date(now - 1 * day - 4 * hour),
+      new Date(now - 1 * day - 4 * hour),
+    ),
+    new RegisteredFlow(
+      uuidv4(),
+      'power_automate',
+      'operaciones',
+      FlowStatus.RISKY,
+      RiskLevel.HIGH,
+      {
+        flowName: 'Transferencia de Tokens a Pasarela Externa',
+        author: 'soporte.ops@empresa.com',
+        trigger: 'ftp.file.uploaded',
+        action: 'api.forward_payload',
+        warning: 'Detección de Credenciales en Payloads',
+      },
+      new Date(now - 2 * day),
+      new Date(now - 2 * day),
+    ),
+    new RegisteredFlow(
+      uuidv4(),
+      'n8n',
+      'legal',
+      FlowStatus.APPROVED,
+      RiskLevel.LOW,
+      {
+        flowName: 'Archivo Centralizado de Contratos Firmados',
+        author: 'abogados@empresa.com',
+        trigger: 'docusign.envelope.completed',
+        action: 's3.encrypted_store',
+      },
+      new Date(now - 2 * day - 8 * hour),
+      new Date(now - 2 * day - 8 * hour),
+    ),
+    new RegisteredFlow(
+      uuidv4(),
+      'zapier',
+      'rrhh',
+      FlowStatus.APPROVED,
+      RiskLevel.LOW,
+      {
+        flowName: 'Onboarding Automatizado de Nuevos Empleados',
+        author: 'talento@empresa.com',
+        trigger: 'bamboohr.employee.added',
+        action: 'google.create_workspace_account',
+      },
+      new Date(now - 3 * day),
+      new Date(now - 3 * day),
+    ),
+    new RegisteredFlow(
+      uuidv4(),
+      'suspicious_bot',
+      'finanzas',
+      FlowStatus.BLOCKED,
+      RiskLevel.CRITICAL,
+      {
+        flowName: 'Webhook No Autorizado en Servidor de Pagos',
+        author: 'unknown@external-ip.net',
+        trigger: 'http.raw_post',
+        action: 'sql.execute_raw',
+        blockReason: 'Bloqueo de Plataformas No Homologadas | Aislamiento Preventivo de Finanzas',
+      },
+      new Date(now - 3 * day - 6 * hour),
+      new Date(now - 3 * day - 6 * hour),
+    ),
+    new RegisteredFlow(
+      uuidv4(),
+      'make',
+      'marketing',
+      FlowStatus.PENDING,
+      RiskLevel.LOW,
+      {
+        flowName: 'Programación de Campañas en Redes Sociales',
+        author: 'social.media@empresa.com',
+        trigger: 'airtable.record.approved',
+        action: 'linkedin.publish_post',
+      },
+      new Date(now - 4 * day),
+      new Date(now - 4 * day),
+    ),
+  ];
+}
+

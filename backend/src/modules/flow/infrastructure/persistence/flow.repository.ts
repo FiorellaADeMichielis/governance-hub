@@ -31,6 +31,14 @@ export class FlowRepository implements IFlowRepository {
     return ormEntities.map((entity) => FlowMapper.toDomain(entity));
   }
 
+  async count(): Promise<number> {
+    return this.ormRepository.count();
+  }
+
+  async deleteAll(): Promise<void> {
+    await this.ormRepository.clear();
+  }
+
   async findWithFilters(skip: number, take: number, status?: FlowStatus): Promise<{ flows: RegisteredFlow[]; total: number }> {
     const whereCondition = status ? { status } : {};
 
