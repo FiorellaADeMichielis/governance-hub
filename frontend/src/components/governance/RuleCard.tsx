@@ -55,8 +55,8 @@ export const RuleCard = ({ rule, onToggle, onDelete, isToggling }: RuleCardProps
     }`}>
       <div className="flex items-start justify-between gap-4">
         <div className="flex-1">
-          <div className="flex items-center gap-2 mb-1.5">
-            <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-stone-100 dark:bg-neutral-900 text-stone-600 dark:text-stone-300 border border-stone-200 dark:border-stone-700">
+          <div className="flex items-center gap-2 mb-1.5 select-none">
+            <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-stone-100 dark:bg-neutral-900 text-stone-600 dark:text-stone-300 border border-stone-200 dark:border-stone-700 select-none">
               {t('governance.priorityBadge', { priority: rule.priority })}
             </span>
             <h3 className="font-semibold text-sm text-stone-900 dark:text-stone-100">
@@ -67,7 +67,7 @@ export const RuleCard = ({ rule, onToggle, onDelete, isToggling }: RuleCardProps
             {rule.description}
           </p>
 
-          <div className="flex flex-wrap items-center gap-2 p-2.5 rounded-lg bg-stone-50 dark:bg-neutral-900 border border-stone-200/80 dark:border-stone-700 font-mono text-xs">
+          <div className="flex flex-wrap items-center gap-2 p-2.5 rounded-lg bg-stone-50 dark:bg-neutral-900 border border-stone-200/80 dark:border-stone-700 font-mono text-xs select-none">
             <span className="text-stone-500 dark:text-stone-400 font-sans text-[11px]">{t('governance.ifCondition')}</span>
             <span className="px-1.5 py-0.5 rounded bg-white dark:bg-stone-800 text-orange-600 dark:text-orange-400 font-semibold border border-stone-200 dark:border-stone-700">
               {rule.targetField}
@@ -86,9 +86,10 @@ export const RuleCard = ({ rule, onToggle, onDelete, isToggling }: RuleCardProps
             type="button"
             role="switch"
             aria-checked={rule.isActive}
+            aria-label={`${rule.name} - ${rule.isActive ? 'Activo' : 'Inactivo'}`}
             disabled={isToggling}
             onClick={() => onToggle(rule.id)}
-            className={`relative inline-flex h-5 w-10 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-orange-500 ${
+            className={`relative inline-flex h-5 w-10 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out select-none active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-stone-800 disabled:opacity-50 disabled:cursor-not-allowed ${
               rule.isActive ? 'bg-orange-600' : 'bg-stone-300 dark:bg-stone-700'
             }`}
           >
@@ -103,7 +104,8 @@ export const RuleCard = ({ rule, onToggle, onDelete, isToggling }: RuleCardProps
             type="button"
             onClick={() => onDelete(rule.id)}
             title={t('governance.deleteRule')}
-            className="text-xs text-stone-400 hover:text-red-600 dark:hover:text-red-400 transition-colors p-1 rounded hover:bg-red-50 dark:hover:bg-neutral-900"
+            aria-label={t('governance.deleteRule')}
+            className="text-xs text-stone-400 hover:text-red-600 dark:hover:text-red-400 transition-colors p-1 rounded hover:bg-red-50 dark:hover:bg-neutral-900 cursor-pointer select-none active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -112,12 +114,12 @@ export const RuleCard = ({ rule, onToggle, onDelete, isToggling }: RuleCardProps
         </div>
       </div>
 
-      <div className="flex items-center gap-2 mt-3 pt-3 border-t border-stone-100 dark:border-stone-700/60 text-xs">
+      <div className="flex items-center gap-2 mt-3 pt-3 border-t border-stone-100 dark:border-stone-700/60 text-xs select-none">
         <span className="text-stone-400 dark:text-stone-500 text-[11px]">{t('governance.resultingAction')}</span>
-        <span className={`px-2 py-0.5 rounded text-[10px] font-bold border ${getStatusBadge()}`}>
+        <span className={`inline-flex items-center select-none whitespace-nowrap px-2 py-0.5 rounded text-[10px] font-bold border ${getStatusBadge()}`}>
           {statusLabel()}
         </span>
-        <span className={`px-1.5 py-0.2 rounded text-[10px] ${getRiskBadge()}`}>
+        <span className={`inline-flex items-center select-none whitespace-nowrap px-1.5 py-0.2 rounded text-[10px] ${getRiskBadge()}`}>
           {rule.resultingRiskLevel}
         </span>
       </div>

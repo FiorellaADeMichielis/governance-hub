@@ -25,16 +25,16 @@ export const AuthLayout = ({
 
   return (
     <div className="min-h-screen bg-stone-100 dark:bg-neutral-950 flex flex-col items-center justify-center p-4 transition-colors relative">
-      <div className="absolute top-6 right-6 flex items-center gap-2.5">
+      <div className="absolute top-6 right-6 z-10 flex items-center gap-2.5">
         <LanguageSelector />
         
         <button
           onClick={onToggleTheme}
           type="button"
           aria-label={isDark ? t('common.lightMode') : t('common.darkMode')}
-          className="px-3 py-1.5 text-xs font-medium bg-white dark:bg-stone-800 text-stone-700 dark:text-stone-300 border border-stone-200 dark:border-stone-700 rounded-lg shadow-sm hover:bg-stone-50 dark:hover:bg-stone-700 transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500 flex items-center gap-1.5"
+          className="px-3 py-1.5 text-xs font-medium bg-white dark:bg-stone-800 text-stone-700 dark:text-stone-300 border border-stone-200 dark:border-stone-700 rounded-lg shadow-sm hover:bg-stone-50 dark:hover:bg-stone-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-neutral-950 flex items-center gap-1.5 cursor-pointer select-none active:scale-[0.98]"
         >
-          {isDark ? <IconSun className="w-3.5 h-3.5 text-amber-500" /> : <IconMoon className="w-3.5 h-3.5 text-stone-400" />}
+          {isDark ? <IconSun className="w-3.5 h-3.5 text-amber-500 shrink-0" /> : <IconMoon className="w-3.5 h-3.5 text-stone-400 shrink-0" />}
           <span>{isDark ? t('common.lightMode') : t('common.darkMode')}</span>
         </button>
       </div>

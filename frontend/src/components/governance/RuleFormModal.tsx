@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { CreateGovernanceRulePayload, RuleOperator } from '../../types/governance.types';
 import { IconClose } from '../common/Icons';
 import { useTranslation } from '../../i18n/useTranslation';
@@ -21,6 +21,25 @@ export const RuleFormModal = ({ isOpen, onClose, onSubmit, isLoading }: RuleForm
   const [resultingRiskLevel, setResultingRiskLevel] = useState<'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL'>('HIGH');
   const [priority, setPriority] = useState(10);
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    if (isOpen) {
+      const originalOverflow = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+
+      const handleKeyDown = (e: KeyboardEvent) => {
+        if (e.key === 'Escape') {
+          onClose();
+        }
+      };
+
+      window.addEventListener('keydown', handleKeyDown);
+      return () => {
+        document.body.style.overflow = originalOverflow;
+        window.removeEventListener('keydown', handleKeyDown);
+      };
+    }
+  }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
@@ -53,11 +72,19 @@ export const RuleFormModal = ({ isOpen, onClose, onSubmit, isLoading }: RuleForm
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-950/60 backdrop-blur-xs animate-fadeIn">
+    <div 
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-950/60 backdrop-blur-xs animate-fadeIn"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="rule-form-modal-title"
+    >
       <div className="bg-white dark:bg-stone-800 w-full max-w-lg rounded-2xl shadow-2xl border border-stone-200 dark:border-stone-700 overflow-hidden">
         <div className="p-6 border-b border-stone-200 dark:border-stone-700 flex items-center justify-between">
           <div>
-            <h3 className="text-lg font-bold text-stone-900 dark:text-stone-50">
+            <h3 id="rule-form-modal-title" className="text-lg font-bold text-stone-900 dark:text-stone-50">
               {t('ruleForm.modalTitle')}
             </h3>
             <p className="text-xs text-stone-500 dark:text-stone-400 mt-0.5">
@@ -67,7 +94,8 @@ export const RuleFormModal = ({ isOpen, onClose, onSubmit, isLoading }: RuleForm
           <button
             onClick={onClose}
             type="button"
-            className="text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 p-1 rounded-lg transition-colors"
+            aria-label={t('common.cancel')}
+            className="text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 p-1 rounded-lg transition-colors cursor-pointer select-none active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500"
           >
             <IconClose className="w-4 h-4" />
           </button>
@@ -91,7 +119,7 @@ export const RuleFormModal = ({ isOpen, onClose, onSubmit, isLoading }: RuleForm
               onChange={(e) => setName(e.target.value)}
               placeholder={t('ruleForm.namePlaceholder')}
               required
-              className="w-full px-3 py-2 text-sm bg-stone-50 dark:bg-neutral-900 border border-stone-300 dark:border-stone-700 rounded-lg text-stone-900 dark:text-stone-100 placeholder-stone-400 dark:placeholder-stone-500 focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-colors"
+              className="w-full px-3 py-2 text-sm bg-stone-50 dark:bg-neutral-900 border border-stone-300 dark:border-stone-700 rounded-lg text-stone-900 dark:text-stone-100 placeholder-stone-400 dark:placeholder-stone-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500/20 focus-visible:border-orange-500 transition-colors"
             />
           </div>
 
@@ -105,7 +133,7 @@ export const RuleFormModal = ({ isOpen, onClose, onSubmit, isLoading }: RuleForm
               placeholder={t('ruleForm.descPlaceholder')}
               rows={2}
               required
-              className="w-full px-3 py-2 text-sm bg-stone-50 dark:bg-neutral-900 border border-stone-300 dark:border-stone-700 rounded-lg text-stone-900 dark:text-stone-100 placeholder-stone-400 dark:placeholder-stone-500 focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 resize-none transition-colors"
+              className="w-full px-3 py-2 text-sm bg-stone-50 dark:bg-neutral-900 border border-stone-300 dark:border-stone-700 rounded-lg text-stone-900 dark:text-stone-100 placeholder-stone-400 dark:placeholder-stone-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500/20 focus-visible:border-orange-500 resize-none transition-colors"
             />
           </div>
 
@@ -118,7 +146,7 @@ export const RuleFormModal = ({ isOpen, onClose, onSubmit, isLoading }: RuleForm
               <select
                 value={targetField}
                 onChange={(e) => setTargetField(e.target.value)}
-                className="w-full px-3 py-2 text-xs bg-stone-50 dark:bg-neutral-900 border border-stone-300 dark:border-stone-700 rounded-lg text-stone-900 dark:text-stone-100 focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-colors"
+                className="w-full pl-3 pr-8 py-2 text-xs bg-stone-50 dark:bg-neutral-900 border border-stone-300 dark:border-stone-700 rounded-lg text-stone-900 dark:text-stone-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500/20 focus-visible:border-orange-500 transition-colors cursor-pointer"
               >
                 <option value="metadata" className="bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100">metadata (Payload)</option>
                 <option value="departmentId" className="bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100">departmentId</option>
@@ -133,7 +161,7 @@ export const RuleFormModal = ({ isOpen, onClose, onSubmit, isLoading }: RuleForm
               <select
                 value={operator}
                 onChange={(e) => setOperator(e.target.value as RuleOperator)}
-                className="w-full px-3 py-2 text-xs bg-stone-50 dark:bg-neutral-900 border border-stone-300 dark:border-stone-700 rounded-lg text-stone-900 dark:text-stone-100 focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-colors"
+                className="w-full pl-3 pr-8 py-2 text-xs bg-stone-50 dark:bg-neutral-900 border border-stone-300 dark:border-stone-700 rounded-lg text-stone-900 dark:text-stone-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500/20 focus-visible:border-orange-500 transition-colors cursor-pointer"
               >
                 <option value="CONTAINS" className="bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100">CONTAINS</option>
                 <option value="EQUALS" className="bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100">EQUALS</option>
@@ -154,7 +182,7 @@ export const RuleFormModal = ({ isOpen, onClose, onSubmit, isLoading }: RuleForm
               onChange={(e) => setExpectedValue(e.target.value)}
               placeholder={t('ruleForm.valuePlaceholder')}
               required
-              className="w-full px-3 py-2 text-xs bg-stone-50 dark:bg-neutral-900 border border-stone-300 dark:border-stone-700 rounded-lg text-stone-900 dark:text-stone-100 placeholder-stone-400 dark:placeholder-stone-500 focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 font-mono transition-colors"
+              className="w-full px-3 py-2 text-xs bg-stone-50 dark:bg-neutral-900 border border-stone-300 dark:border-stone-700 rounded-lg text-stone-900 dark:text-stone-100 placeholder-stone-400 dark:placeholder-stone-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500/20 focus-visible:border-orange-500 font-mono transition-colors"
             />
           </div>
 
@@ -167,7 +195,7 @@ export const RuleFormModal = ({ isOpen, onClose, onSubmit, isLoading }: RuleForm
               <select
                 value={resultingStatus}
                 onChange={(e) => setResultingStatus(e.target.value as any)}
-                className="w-full px-3 py-2 text-xs bg-stone-50 dark:bg-neutral-900 border border-stone-300 dark:border-stone-700 rounded-lg text-stone-900 dark:text-stone-100 focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-colors"
+                className="w-full pl-3 pr-8 py-2 text-xs bg-stone-50 dark:bg-neutral-900 border border-stone-300 dark:border-stone-700 rounded-lg text-stone-900 dark:text-stone-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500/20 focus-visible:border-orange-500 transition-colors cursor-pointer"
               >
                 <option value="RISKY" className="bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100">{t('dashboard.statusRisky')}</option>
                 <option value="BLOCKED" className="bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100">{t('dashboard.statusBlocked')}</option>
@@ -183,7 +211,7 @@ export const RuleFormModal = ({ isOpen, onClose, onSubmit, isLoading }: RuleForm
               <select
                 value={resultingRiskLevel}
                 onChange={(e) => setResultingRiskLevel(e.target.value as any)}
-                className="w-full px-3 py-2 text-xs bg-stone-50 dark:bg-neutral-900 border border-stone-300 dark:border-stone-700 rounded-lg text-stone-900 dark:text-stone-100 focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-colors"
+                className="w-full pl-3 pr-8 py-2 text-xs bg-stone-50 dark:bg-neutral-900 border border-stone-300 dark:border-stone-700 rounded-lg text-stone-900 dark:text-stone-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500/20 focus-visible:border-orange-500 transition-colors cursor-pointer"
               >
                 <option value="CRITICAL" className="bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100">CRITICAL</option>
                 <option value="HIGH" className="bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100">HIGH</option>
@@ -202,7 +230,7 @@ export const RuleFormModal = ({ isOpen, onClose, onSubmit, isLoading }: RuleForm
                 max="99"
                 value={priority}
                 onChange={(e) => setPriority(Number(e.target.value))}
-                className="w-full px-3 py-2 text-xs bg-stone-50 dark:bg-neutral-900 border border-stone-300 dark:border-stone-700 rounded-lg text-stone-900 dark:text-stone-100 focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-colors"
+                className="w-full px-3 py-2 text-xs bg-stone-50 dark:bg-neutral-900 border border-stone-300 dark:border-stone-700 rounded-lg text-stone-900 dark:text-stone-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500/20 focus-visible:border-orange-500 transition-colors"
               />
             </div>
           </div>
@@ -212,14 +240,14 @@ export const RuleFormModal = ({ isOpen, onClose, onSubmit, isLoading }: RuleForm
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-xs font-medium text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-neutral-800 rounded-lg transition-colors"
+              className="px-4 py-2 text-xs font-medium text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-neutral-800 rounded-lg transition-colors cursor-pointer select-none active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500"
             >
               {t('common.cancel')}
             </button>
             <button
               type="submit"
               disabled={isLoading}
-              className="px-4 py-2 text-xs font-semibold bg-orange-600 hover:bg-orange-700 active:bg-orange-800 text-white rounded-lg transition-colors disabled:opacity-50 shadow-xs"
+              className="px-4 py-2 text-xs font-semibold bg-orange-600 hover:bg-orange-700 active:bg-orange-800 text-white rounded-lg transition-colors disabled:opacity-50 shadow-xs cursor-pointer select-none active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-stone-800"
             >
               {isLoading ? t('ruleForm.saving') : t('ruleForm.createRule')}
             </button>

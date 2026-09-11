@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { SimulationResponse, SimulationPayload } from '../../types/governance.types';
 import { GovernanceService } from '../../services/governance.service';
 import { 
@@ -25,6 +25,25 @@ export const RuleSimulatorModal = ({ isOpen, onClose }: RuleSimulatorModalProps)
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [simulationResult, setSimulationResult] = useState<SimulationResponse['result'] | null>(null);
+
+  useEffect(() => {
+    if (isOpen) {
+      const originalOverflow = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+
+      const handleKeyDown = (e: KeyboardEvent) => {
+        if (e.key === 'Escape') {
+          onClose();
+        }
+      };
+
+      window.addEventListener('keydown', handleKeyDown);
+      return () => {
+        document.body.style.overflow = originalOverflow;
+        window.removeEventListener('keydown', handleKeyDown);
+      };
+    }
+  }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
@@ -121,16 +140,24 @@ export const RuleSimulatorModal = ({ isOpen, onClose }: RuleSimulatorModalProps)
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-950/60 backdrop-blur-xs animate-fadeIn">
+    <div 
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-950/60 backdrop-blur-xs animate-fadeIn"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="rule-simulator-modal-title"
+    >
       <div className="bg-white dark:bg-stone-800 w-full max-w-2xl rounded-2xl shadow-2xl border border-stone-200 dark:border-stone-700 overflow-hidden max-h-[90vh] flex flex-col">
         {/* Header */}
         <div className="p-6 border-b border-stone-200 dark:border-stone-700 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-orange-600/10 text-orange-600 dark:text-orange-400 flex items-center justify-center font-bold text-lg border border-orange-500/20">
+            <div className="w-9 h-9 rounded-xl bg-orange-600/10 text-orange-600 dark:text-orange-400 flex items-center justify-center font-bold text-lg border border-orange-500/20 select-none">
               <IconZap className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-lg font-bold text-stone-900 dark:text-stone-50">
+              <h3 id="rule-simulator-modal-title" className="text-lg font-bold text-stone-900 dark:text-stone-50">
                 {t('playground.modalTitle')}
               </h3>
               <p className="text-xs text-stone-500 dark:text-stone-400">
@@ -141,7 +168,8 @@ export const RuleSimulatorModal = ({ isOpen, onClose }: RuleSimulatorModalProps)
           <button
             onClick={onClose}
             type="button"
-            className="text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 p-1 rounded-lg transition-colors"
+            aria-label={t('common.cancel')}
+            className="text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 p-1 rounded-lg transition-colors cursor-pointer select-none active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500"
           >
             <IconClose className="w-4 h-4" />
           </button>
@@ -151,7 +179,7 @@ export const RuleSimulatorModal = ({ isOpen, onClose }: RuleSimulatorModalProps)
         <div className="p-6 overflow-y-auto space-y-5 flex-1">
           {/* Presets rápidos */}
           <div>
-            <label className="block text-xs font-semibold text-stone-500 dark:text-stone-400 uppercase tracking-wider mb-2">
+            <label className="block text-xs font-semibold text-stone-500 dark:text-stone-400 uppercase tracking-wider mb-2 select-none">
               {t('playground.presetsTitle')}
             </label>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -160,7 +188,7 @@ export const RuleSimulatorModal = ({ isOpen, onClose }: RuleSimulatorModalProps)
                   key={idx}
                   type="button"
                   onClick={() => handleApplyPreset(preset)}
-                  className="px-3 py-2 text-xs font-medium text-left rounded-lg border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-neutral-900 hover:bg-stone-100 dark:hover:bg-neutral-800 text-stone-700 dark:text-stone-300 transition-colors truncate flex items-center gap-2"
+                  className="px-3 py-2 text-xs font-medium text-left rounded-lg border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-neutral-900 hover:bg-stone-100 dark:hover:bg-neutral-800 text-stone-700 dark:text-stone-300 transition-colors truncate flex items-center gap-2 cursor-pointer select-none active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500/20"
                 >
                   {preset.badgeType === 'warning' && <IconWarning className="w-3.5 h-3.5 text-amber-500 shrink-0" />}
                   {preset.badgeType === 'info' && <IconInfo className="w-3.5 h-3.5 text-blue-500 shrink-0" />}
@@ -184,7 +212,7 @@ export const RuleSimulatorModal = ({ isOpen, onClose }: RuleSimulatorModalProps)
                   onChange={(e) => setPlatformId(e.target.value)}
                   placeholder="zapier, make, n8n..."
                   required
-                  className="w-full px-3 py-2 text-xs bg-stone-50 dark:bg-neutral-900 border border-stone-300 dark:border-stone-700 rounded-lg text-stone-900 dark:text-stone-100 font-mono focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-colors"
+                  className="w-full px-3 py-2 text-xs bg-stone-50 dark:bg-neutral-900 border border-stone-300 dark:border-stone-700 rounded-lg text-stone-900 dark:text-stone-100 font-mono focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500/20 focus-visible:border-orange-500 transition-colors"
                 />
               </div>
 
@@ -198,7 +226,7 @@ export const RuleSimulatorModal = ({ isOpen, onClose }: RuleSimulatorModalProps)
                   onChange={(e) => setDepartmentId(e.target.value)}
                   placeholder="marketing, finanzas, legal..."
                   required
-                  className="w-full px-3 py-2 text-xs bg-stone-50 dark:bg-neutral-900 border border-stone-300 dark:border-stone-700 rounded-lg text-stone-900 dark:text-stone-100 font-mono focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-colors"
+                  className="w-full px-3 py-2 text-xs bg-stone-50 dark:bg-neutral-900 border border-stone-300 dark:border-stone-700 rounded-lg text-stone-900 dark:text-stone-100 font-mono focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500/20 focus-visible:border-orange-500 transition-colors"
                 />
               </div>
             </div>
@@ -212,7 +240,7 @@ export const RuleSimulatorModal = ({ isOpen, onClose }: RuleSimulatorModalProps)
                 onChange={(e) => setMetadataJson(e.target.value)}
                 rows={5}
                 required
-                className="w-full p-3 text-xs bg-stone-950 text-stone-100 font-mono rounded-lg border border-stone-800 focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500"
+                className="w-full p-3 text-xs bg-stone-950 text-stone-100 font-mono rounded-lg border border-stone-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500/20 focus-visible:border-orange-500"
               />
             </div>
 
@@ -225,7 +253,7 @@ export const RuleSimulatorModal = ({ isOpen, onClose }: RuleSimulatorModalProps)
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full py-2.5 px-4 bg-orange-600 hover:bg-orange-700 active:bg-orange-800 text-white font-semibold text-xs rounded-lg transition-colors flex items-center justify-center gap-2 disabled:opacity-50 shadow-xs"
+              className="w-full py-2.5 px-4 bg-orange-600 hover:bg-orange-700 active:bg-orange-800 text-white font-semibold text-xs rounded-lg transition-colors flex items-center justify-center gap-2 disabled:opacity-50 shadow-xs cursor-pointer select-none active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-stone-800"
             >
               {isLoading ? (
                 <span>{t('playground.simulating')}</span>
@@ -245,14 +273,14 @@ export const RuleSimulatorModal = ({ isOpen, onClose }: RuleSimulatorModalProps)
                 {t('playground.resultTitle')}
               </h4>
 
-              <div className="flex items-center gap-3 mb-4">
+              <div className="flex items-center gap-3 mb-4 select-none">
                 <div className="text-xs text-stone-600 dark:text-stone-400">{t('playground.finalStatus')}</div>
-                <span className={`px-2.5 py-1 rounded text-xs font-bold ${getStatusColor(simulationResult.finalStatus)}`}>
+                <span className={`inline-flex items-center select-none whitespace-nowrap px-2.5 py-1 rounded text-xs font-bold ${getStatusColor(simulationResult.finalStatus)}`}>
                   {simulationResult.finalStatus}
                 </span>
 
                 <div className="text-xs text-stone-600 dark:text-stone-400 ml-2">{t('playground.riskLevel')}</div>
-                <span className="px-2 py-0.5 rounded text-xs font-semibold bg-stone-200 dark:bg-stone-800 text-stone-900 dark:text-stone-100 border border-stone-300 dark:border-stone-700">
+                <span className="inline-flex items-center select-none whitespace-nowrap px-2 py-0.5 rounded text-xs font-semibold bg-stone-200 dark:bg-stone-800 text-stone-900 dark:text-stone-100 border border-stone-300 dark:border-stone-700">
                   {simulationResult.finalRiskLevel}
                 </span>
               </div>
@@ -266,7 +294,7 @@ export const RuleSimulatorModal = ({ isOpen, onClose }: RuleSimulatorModalProps)
                     <div key={idx} className="p-3 rounded-lg bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-xs">
                       <div className="flex items-center justify-between font-semibold text-stone-900 dark:text-stone-100 mb-1">
                         <span>{match.ruleName}</span>
-                        <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${getStatusColor(match.resultingStatus)}`}>
+                        <span className={`inline-flex items-center select-none whitespace-nowrap px-1.5 py-0.5 rounded text-[10px] font-bold ${getStatusColor(match.resultingStatus)}`}>
                           {match.resultingStatus}
                         </span>
                       </div>

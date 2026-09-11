@@ -35,20 +35,35 @@ export class RegisteredFlow {
   getStatus(): FlowStatus { return this.status; }
   getRiskLevel(): RiskLevel { return this.riskLevel; }
 
-  public markForReview(reason: string): void {
-    if (this.status !== FlowStatus.APPROVED && this.status !== FlowStatus.BLOCKED) {
-      throw new Error('Solo los flujos aprobados o bloqueados pueden ser puestos en revisión.');
+  public setRiskLevel(level: RiskLevel): void {
+    this.riskLevel = level;
+    this.markAsUpdated();
+  }
+
+  public markForReview(reason: string, level?: RiskLevel): void {
+    if (
+      this.status !== FlowStatus.APPROVED &&
+      this.status !== FlowStatus.BLOCKED &&
+      this.status !== FlowStatus.PENDING
+    ) {
+      throw new Error('Solo los flujos pendientes, aprobados o bloqueados pueden ser puestos en revisión.');
     }
     this.status = FlowStatus.UNDER_REVIEW;
+    if (level) {
+      this.riskLevel = level;
+    }
     this.metadata['reviewReason'] = reason;
     this.markAsUpdated();
   }
 
-  public blockFlow(reason: string): void {
+  public blockFlow(reason: string, level?: RiskLevel): void {
     if (this.status === FlowStatus.APPROVED) {
       throw new Error('Cannot block an already approved flow without prior review.');
     }
     this.status = FlowStatus.BLOCKED;
+    if (level) {
+      this.riskLevel = level;
+    }
     this.metadata['blockReason'] = reason;
     this.markAsUpdated();
   }

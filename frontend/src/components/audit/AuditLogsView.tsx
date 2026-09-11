@@ -36,9 +36,9 @@ export const AuditLogsView = ({ flows, isLoading }: AuditLogsViewProps) => {
           </p>
         </div>
 
-        <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-stone-100 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-xs text-stone-600 dark:text-stone-400">
+        <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-stone-100 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-xs text-stone-600 dark:text-stone-400 select-none">
           <span>{t('auditLogs.totalRecords')}</span>
-          <span className="font-bold text-stone-900 dark:text-stone-50">{flows.length}</span>
+          <span className="font-bold tabular-nums text-stone-900 dark:text-stone-50">{flows.length}</span>
         </div>
       </div>
 
@@ -53,14 +53,14 @@ export const AuditLogsView = ({ flows, isLoading }: AuditLogsViewProps) => {
             placeholder={t('auditLogs.searchPlaceholder')}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-lg text-sm text-stone-900 dark:text-stone-100 placeholder-stone-400 dark:placeholder-stone-500 focus:outline-none focus:border-orange-500 transition-colors"
+            className="w-full pl-9 pr-4 py-2 bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-lg text-sm text-stone-900 dark:text-stone-100 placeholder-stone-400 dark:placeholder-stone-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500/20 focus-visible:border-orange-500 transition-colors"
           />
         </div>
 
         <select
           value={filterStatus}
           onChange={(e) => setFilterStatus(e.target.value)}
-          className="px-4 py-2 bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-lg text-sm text-stone-900 dark:text-stone-100 focus:outline-none focus:border-orange-500 transition-colors cursor-pointer"
+          className="pl-4 pr-10 py-2 bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-lg text-sm text-stone-900 dark:text-stone-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500/20 focus-visible:border-orange-500 transition-colors cursor-pointer"
         >
           <option value="" className="bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100">{t('auditLogs.allStatuses')}</option>
           <option value="APPROVED" className="bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100">{t('dashboard.approved')}</option>
@@ -72,7 +72,8 @@ export const AuditLogsView = ({ flows, isLoading }: AuditLogsViewProps) => {
 
       {/* Tabla de Auditoría */}
       <div className="bg-white dark:bg-stone-800 rounded-xl shadow-sm border border-stone-200 dark:border-stone-700 overflow-hidden">
-        <table className="w-full text-left border-collapse">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse">
           <thead>
             <tr className="bg-stone-100 dark:bg-neutral-900 border-b border-stone-200 dark:border-stone-700 text-stone-500 dark:text-stone-400 text-xs uppercase tracking-wider">
               <th className="p-4 font-semibold">{t('auditLogs.colEventId')}</th>
@@ -113,7 +114,7 @@ export const AuditLogsView = ({ flows, isLoading }: AuditLogsViewProps) => {
                   </td>
                   <td className="p-4">
                     <span
-                      className={`inline-block px-2 py-0.5 rounded text-[11px] font-semibold ${
+                      className={`inline-block select-none whitespace-nowrap px-2 py-0.5 rounded text-[11px] font-semibold ${
                         flow.riskLevel === 'CRITICAL' || flow.riskLevel === 'HIGH'
                           ? 'bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400'
                           : flow.riskLevel === 'MEDIUM'
@@ -125,7 +126,7 @@ export const AuditLogsView = ({ flows, isLoading }: AuditLogsViewProps) => {
                     </span>
                   </td>
                   <td className="p-4 text-right">
-                    <span className="text-[11px] text-stone-400 dark:text-stone-500 font-mono">
+                    <span className="text-[11px] text-stone-400 dark:text-stone-500 font-mono select-none">
                       {t('auditLogs.mechanismValue')}
                     </span>
                   </td>
@@ -134,6 +135,7 @@ export const AuditLogsView = ({ flows, isLoading }: AuditLogsViewProps) => {
             )}
           </tbody>
         </table>
+        </div>
       </div>
     </div>
   );

@@ -35,21 +35,36 @@ export const DashboardPage = ({ user, onLogout }: DashboardPageProps) => {
   }>({ isOpen: false, flowId: '', action: null, platformId: '' });
 
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [stats, setStats] = useState<{
+    total: number;
+    blocked: number;
+    risky: number;
+    approved: number;
+    pending: number;
+    byPlatform: Record<string, { total: number; blocked: number }>;
+  }>({
+    total: 0,
+    blocked: 0,
+    risky: 0,
+    approved: 0,
+    pending: 0,
+    byPlatform: {},
+  });
 
   useEffect(() => {
-    if (!isAdmin && currentSection !== 'dashboard') {
+    if (!isAdmin && currentSection !== 'dashboard' && currentSection !== 'integrations') {
       setCurrentSection('dashboard');
     }
   }, [isAdmin, currentSection]);
 
   const handleNavigate = (section: NavSection) => {
-    if (!isAdmin && section !== 'dashboard') return;
+    if (!isAdmin && section !== 'dashboard' && section !== 'integrations') return;
     setCurrentSection(section);
   };
 
-  const totalFlows = flows.length;
-  const blockedFlows = flows.filter(f => f.status === 'BLOCKED').length;
-  const riskyFlows = flows.filter(f => f.status === 'RISKY' || f.status === 'UNDER_REVIEW').length;
+  const totalFlows = stats.total > 0 ? stats.total : flows.length;
+  const blockedFlows = stats.total > 0 ? stats.blocked : flows.filter(f => f.status === 'BLOCKED').length;
+  const riskyFlows = stats.total > 0 ? stats.risky : flows.filter(f => f.status === 'RISKY' || f.status === 'UNDER_REVIEW').length;
 
   useEffect(() => {
     const socket = io('http://localhost:3000'); 
@@ -67,8 +82,9 @@ export const DashboardPage = ({ user, onLogout }: DashboardPageProps) => {
     const fetchFlows = async () => {
       setLoading(true);
       const token = localStorage.getItem('accessToken');
-      const query = new URLSearchParams({ page: page.toString(), limit: '10' });
-      if (statusFilter) query.append('status', statusFilter);
+      const limit = currentSection === 'audit-logs' ? '100' : '10';
+      const query = new URLSearchParams({ page: page.toString(), limit });
+      if (statusFilter && currentSection === 'dashboard') query.append('status', statusFilter);
 
       try {
         const response = await fetch(`http://localhost:3000/flows?${query.toString()}`, {
@@ -80,6 +96,9 @@ export const DashboardPage = ({ user, onLogout }: DashboardPageProps) => {
           const json = await response.json();
           setFlows(json.data);
           setTotalPages(json.meta.lastPage);
+          if (json.meta.stats) {
+            setStats(json.meta.stats);
+          }
         } else if (response.status === 401) {
           onLogout();
         }
@@ -90,7 +109,7 @@ export const DashboardPage = ({ user, onLogout }: DashboardPageProps) => {
       }
     };
     fetchFlows();
-  }, [page, statusFilter, onLogout, refreshTrigger]);
+  }, [page, statusFilter, onLogout, refreshTrigger, currentSection]);
 
   const handleReviewRequest = (id: string, action: 'APPROVE' | 'BLOCK' | 'MARK_REVIEW') => {
     if (user.role !== 'ADMIN') {
@@ -118,6 +137,7 @@ export const DashboardPage = ({ user, onLogout }: DashboardPageProps) => {
         const newStatus = action === 'APPROVE' ? 'APPROVED' : action === 'BLOCK' ? 'BLOCKED' : 'UNDER_REVIEW';
         setFlows(prev => prev.map(f => f.id === id ? { ...f, status: newStatus } : f));
         setModalConfig(prev => ({ ...prev, isOpen: false }));
+        setRefreshTrigger(prev => prev + 1);
       } else {
         const errorData = await response.json();
         alert(`Operación rechazada: ${errorData.message}`);
@@ -145,15 +165,15 @@ export const DashboardPage = ({ user, onLogout }: DashboardPageProps) => {
         <GovernancePage user={user} />
       )}
 
-      {isAdmin && currentSection === 'integrations' && (
-        <IntegrationsView />
+      {currentSection === 'integrations' && (
+        <IntegrationsView flows={flows} stats={stats} user={user} />
       )}
 
       {isAdmin && currentSection === 'audit-logs' && (
         <AuditLogsView flows={flows} isLoading={loading} />
       )}
 
-      {(!isAdmin || currentSection === 'dashboard') && (
+      {currentSection === 'dashboard' && (
         <>
           <div className="flex items-center justify-between mb-6">
             <div>
@@ -164,9 +184,9 @@ export const DashboardPage = ({ user, onLogout }: DashboardPageProps) => {
             </div>
 
             {/* Badge indicador de sesión activa */}
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-xs">
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-xs select-none">
               <span className="text-stone-500 dark:text-stone-400">{t('dashboard.activeRole')}</span>
-              <span className={`font-semibold px-2 py-0.5 rounded text-[11px] ${
+              <span className={`font-semibold px-2 py-0.5 rounded text-[11px] select-none whitespace-nowrap ${
                 user.role === 'ADMIN'
                   ? 'bg-orange-100 text-orange-700 dark:bg-orange-500/20 dark:text-orange-400'
                   : 'bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-400'
@@ -181,7 +201,7 @@ export const DashboardPage = ({ user, onLogout }: DashboardPageProps) => {
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-bold text-stone-900 dark:text-stone-50">{t('dashboard.activityTitle')}</h3>
             <select 
-              className="px-4 py-2 bg-white dark:bg-stone-800 border border-stone-300 dark:border-stone-700 text-stone-900 dark:text-stone-50 text-sm rounded-lg focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 transition-colors cursor-pointer"
+              className="pl-4 pr-10 py-2 bg-white dark:bg-stone-800 border border-stone-300 dark:border-stone-700 text-stone-900 dark:text-stone-50 text-sm rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500/20 focus-visible:border-orange-500 transition-colors cursor-pointer"
               value={statusFilter}
               onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
             >

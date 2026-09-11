@@ -183,6 +183,18 @@ export interface TranslationSchema {
     makeDesc: string;
     n8nDesc: string;
     powerAutomateDesc: string;
+    testConnection: string;
+    testing: string;
+    testSuccess: string;
+    testError: string;
+    departmentSelect: string;
+    userGuideTitle: string;
+    userStep1: string;
+    userStep2: string;
+    userStep3: string;
+    incidentsDetected: string;
+    adminDiagnosisTitle: string;
+    adminDiagnosisSubtitle: string;
   };
   auditLogs: {
     title: string;

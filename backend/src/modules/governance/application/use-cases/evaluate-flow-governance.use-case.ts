@@ -46,13 +46,16 @@ export class EvaluateFlowGovernanceUseCase {
 
       try {
         if (result.finalStatus === FlowStatus.BLOCKED) {
-          flow.blockFlow(reasonText);
+          flow.blockFlow(reasonText, result.finalRiskLevel);
         } else if (result.finalStatus === FlowStatus.RISKY) {
           flow.markAsRisky(result.finalRiskLevel);
         } else if (result.finalStatus === FlowStatus.UNDER_REVIEW) {
-          flow.markForReview(reasonText);
+          flow.markForReview(reasonText, result.finalRiskLevel);
         } else if (result.finalStatus === FlowStatus.APPROVED) {
           flow.approveFlow();
+          if (result.finalRiskLevel) {
+            flow.setRiskLevel(result.finalRiskLevel);
+          }
         }
 
         await this.flowRepository.save(flow);
@@ -63,6 +66,16 @@ export class EvaluateFlowGovernanceUseCase {
       }
     } else {
       this.logger.log(`[Governance] Flujo ${flowId} evaluado: Cumple con todas las políticas activas.`);
+      if (flow.getStatus() === FlowStatus.PENDING) {
+        try {
+          flow.approveFlow();
+          await this.flowRepository.save(flow);
+          this.flowGateway.notifyFlowUpdate();
+          this.logger.log(`[Governance] Flujo ${flowId} aprobado automáticamente por cumplir con todas las políticas.`);
+        } catch (err: any) {
+          this.logger.error(`Error aprobando automáticamente flujo ${flowId}: ${err.message}`);
+        }
+      }
     }
 
     return result;

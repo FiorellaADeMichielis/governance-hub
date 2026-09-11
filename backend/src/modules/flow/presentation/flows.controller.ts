@@ -27,6 +27,13 @@ export class FlowsController {
 
   @ApiBearerAuth()
   @UseGuards(AuthGuard('jwt'))
+  @Get('stats')
+  async getFlowStats() {
+    return this.getFlowsUseCase.getStats();
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard('jwt'))
   @Get()
   async getAllFlows(@Query() query: GetFlowsDto) {
     const result = await this.getFlowsUseCase.execute(
@@ -58,6 +65,17 @@ export class FlowsController {
     };
   }
 
+  @Post('webhook/ping')
+  @HttpCode(HttpStatus.OK)
+  async pingWebhook(@Body() payload: any) {
+    return { 
+      status: 'healthy',
+      platformId: payload?.platformId || 'generic',
+      timestamp: new Date().toISOString(),
+      message: 'Webhook gateway operational',
+    };
+  }
+
   @Post('webhook')
   @HttpCode(HttpStatus.ACCEPTED)
   async ingestWebhook(@Body() payload: WebhookIngestionDto) {
@@ -72,13 +90,20 @@ export class FlowsController {
   }
 
   @EventPattern('flow.webhook.received') 
-  async handleFlowWebhook(@Payload() payload: any) {
+  async handleFlowWebhook(@Payload() payload: any, @Ctx() context: RmqContext) {
     console.log(`\n [RabbitMQ] ¡PROCESANDO WEBHOOK!`);
+    const channel = context.getChannelRef();
+    const originalMsg = context.getMessage();
     
     try {
+      if (payload.metadata?.isPing || payload.metadata?.diagnostic) {
+        return;
+      }
+
       await this.registerFlowUseCase.execute({
         platformId: payload.platformId,
         departmentId: payload.departmentId,
+        metadata: payload.metadata || {},
       });
       
       console.log(' [RabbitMQ] Flujo guardado exitosamente.');
@@ -89,6 +114,8 @@ export class FlowsController {
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
       console.error(' [RabbitMQ] Error al procesar el webhook:', errorMessage);
+    } finally {
+      channel.ack(originalMsg);
     }
   }
 

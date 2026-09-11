@@ -108,7 +108,7 @@ export const GovernancePage = ({ user }: GovernancePageProps) => {
           <button
             type="button"
             onClick={() => setIsSimulatorOpen(true)}
-            className="px-3.5 py-2 text-xs font-semibold bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700 text-stone-900 dark:text-stone-100 border border-stone-200 dark:border-stone-700 rounded-lg transition-colors flex items-center gap-1.5 shadow-xs"
+            className="px-3.5 py-2 text-xs font-semibold bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700 text-stone-900 dark:text-stone-100 border border-stone-200 dark:border-stone-700 rounded-lg transition-colors flex items-center gap-1.5 shadow-xs cursor-pointer select-none active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500"
           >
             <IconPlay className="w-3.5 h-3.5 text-orange-600 dark:text-orange-400" />
             <span>{t('governance.playgroundBtn')}</span>
@@ -118,7 +118,7 @@ export const GovernancePage = ({ user }: GovernancePageProps) => {
             <button
               type="button"
               onClick={() => setIsCreateOpen(true)}
-              className="px-3.5 py-2 text-xs font-semibold bg-orange-600 hover:bg-orange-700 active:bg-orange-800 text-white rounded-lg transition-colors flex items-center gap-1.5 shadow-sm shadow-orange-600/20"
+              className="px-3.5 py-2 text-xs font-semibold bg-orange-600 hover:bg-orange-700 active:bg-orange-800 text-white rounded-lg transition-colors flex items-center gap-1.5 shadow-sm shadow-orange-600/20 cursor-pointer select-none active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-stone-800"
             >
               <IconPlus className="w-3.5 h-3.5" />
               <span>{t('governance.newPolicyBtn')}</span>
@@ -128,28 +128,28 @@ export const GovernancePage = ({ user }: GovernancePageProps) => {
       </div>
 
       {!isAdmin && (
-        <div className="p-3.5 bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/20 text-blue-700 dark:text-blue-300 text-xs rounded-xl flex items-center gap-2">
+        <div className="p-3.5 bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/20 text-blue-700 dark:text-blue-300 text-xs rounded-xl flex items-center gap-2 select-none">
           <IconInfo className="w-4 h-4 shrink-0" />
           <span>{t('governance.readOnlyBanner')}</span>
         </div>
       )}
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="p-4 rounded-xl bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 shadow-sm transition-colors">
+        <div className="p-4 rounded-xl bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 hover:border-stone-300 dark:hover:border-stone-600 shadow-sm transition-all duration-200">
           <div className="text-xs font-medium text-stone-500 dark:text-stone-400">{t('governance.totalRulesMetric')}</div>
-          <div className="text-2xl font-bold text-stone-900 dark:text-stone-50 mt-1">{totalRules}</div>
+          <div className="text-2xl font-bold tracking-tight tabular-nums text-stone-900 dark:text-stone-50 mt-1">{totalRules}</div>
           <div className="text-[11px] text-stone-400 dark:text-stone-500 mt-1">{t('governance.totalRulesSub')}</div>
         </div>
 
-        <div className="p-4 rounded-xl bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 shadow-sm transition-colors">
+        <div className="p-4 rounded-xl bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 hover:border-stone-300 dark:hover:border-stone-600 shadow-sm transition-all duration-200">
           <div className="text-xs font-medium text-stone-500 dark:text-stone-400">{t('governance.activeRulesMetric')}</div>
-          <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400 mt-1">{activeRules}</div>
+          <div className="text-2xl font-bold tracking-tight tabular-nums text-emerald-600 dark:text-emerald-400 mt-1">{activeRules}</div>
           <div className="text-[11px] text-stone-400 dark:text-stone-500 mt-1">{t('governance.activeRulesSub')}</div>
         </div>
 
-        <div className="p-4 rounded-xl bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 shadow-sm transition-colors">
+        <div className="p-4 rounded-xl bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 hover:border-stone-300 dark:hover:border-stone-600 shadow-sm transition-all duration-200">
           <div className="text-xs font-medium text-stone-500 dark:text-stone-400">{t('governance.criticalRulesMetric')}</div>
-          <div className="text-2xl font-bold text-red-600 dark:text-red-400 mt-1">{criticalRules}</div>
+          <div className="text-2xl font-bold tracking-tight tabular-nums text-red-600 dark:text-red-400 mt-1">{criticalRules}</div>
           <div className="text-[11px] text-stone-400 dark:text-stone-500 mt-1">{t('governance.criticalRulesSub')}</div>
         </div>
       </div>

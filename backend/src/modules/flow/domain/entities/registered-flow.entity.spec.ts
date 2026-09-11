@@ -36,4 +36,11 @@ describe('RegisteredFlow Entity', () => {
     flow.blockFlow('Fuga de datos confirmada');
     expect(flow.getStatus()).toBe(FlowStatus.BLOCKED);
   });
+
+  it('deberia permitir poner en revision un flujo pendiente por evaluacion de gobernanza', () => {
+    const flow = new RegisteredFlow('123', 'zapier', 'finanzas', FlowStatus.PENDING, RiskLevel.LOW, {});
+    flow.markForReview('Aislamiento Preventivo de Finanzas', RiskLevel.MEDIUM);
+    expect(flow.getStatus()).toBe(FlowStatus.UNDER_REVIEW);
+    expect(flow.getRiskLevel()).toBe(RiskLevel.MEDIUM);
+  });
 });

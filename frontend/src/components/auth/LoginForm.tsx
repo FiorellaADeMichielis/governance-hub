@@ -44,6 +44,17 @@ export const LoginForm = ({ onSubmit, isLoading, errorMessage }: LoginFormProps)
           {t('auth.corporateEmail')}
         </label>
         <div className="relative">
+          <style>{`
+            .dark input[type="email"]:-webkit-autofill,
+            .dark input[type="email"]:-webkit-autofill:hover,
+            .dark input[type="email"]:-webkit-autofill:focus,
+            .dark input[type="email"]:-webkit-autofill:active {
+              -webkit-box-shadow: 0 0 0 1000px #292524 inset !important;
+              -webkit-text-fill-color: #f5f5f4 !important;
+              caret-color: #f5f5f4 !important;
+              transition: background-color 5000s ease-in-out 0s;
+            }
+          `}</style>
           <input
             id="email"
             name="email"
@@ -54,7 +65,7 @@ export const LoginForm = ({ onSubmit, isLoading, errorMessage }: LoginFormProps)
             onChange={(e) => setEmail(e.target.value)}
             disabled={isLoading}
             required
-            className="w-full px-3.5 py-2.5 text-sm bg-white dark:bg-stone-800 border border-stone-300 dark:border-stone-700 rounded-lg text-stone-900 dark:text-stone-100 placeholder-stone-400 dark:placeholder-stone-500 focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 transition-all disabled:opacity-50"
+            className="w-full px-3.5 py-2.5 text-sm bg-white dark:bg-stone-800 border border-stone-300 dark:border-stone-700 rounded-lg text-stone-900 dark:text-stone-100 placeholder-stone-400 dark:placeholder-stone-500 focus-visible:outline-none focus-visible:border-orange-500 focus-visible:ring-2 focus-visible:ring-orange-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           />
         </div>
       </div>
@@ -69,6 +80,12 @@ export const LoginForm = ({ onSubmit, isLoading, errorMessage }: LoginFormProps)
           </label>
         </div>
         <div className="relative">
+          <style>{`
+            input[type="password"]::-ms-reveal,
+            input[type="password"]::-ms-clear {
+              display: none !important;
+            }
+          `}</style>
           <input
             id="current-password"
             name="password"
@@ -79,13 +96,13 @@ export const LoginForm = ({ onSubmit, isLoading, errorMessage }: LoginFormProps)
             onChange={(e) => setPassword(e.target.value)}
             disabled={isLoading}
             required
-            className="w-full pl-3.5 pr-10 py-2.5 text-sm bg-white dark:bg-stone-800 border border-stone-300 dark:border-stone-700 rounded-lg text-stone-900 dark:text-stone-100 placeholder-stone-400 dark:placeholder-stone-500 focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 transition-all disabled:opacity-50"
+            className="w-full pl-3.5 pr-10 py-2.5 text-sm bg-white dark:bg-stone-800 border border-stone-300 dark:border-stone-700 rounded-lg text-stone-900 dark:text-stone-100 placeholder-stone-400 dark:placeholder-stone-500 focus-visible:outline-none focus-visible:border-orange-500 focus-visible:ring-2 focus-visible:ring-orange-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           />
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
             aria-label={showPassword ? t('auth.hidePassword') : t('auth.showPassword')}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 transition-colors p-1"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 transition-colors p-1 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 cursor-pointer select-none"
           >
             {showPassword ? (
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -102,16 +119,16 @@ export const LoginForm = ({ onSubmit, isLoading, errorMessage }: LoginFormProps)
       </div>
 
       <div className="flex items-center justify-between text-xs">
-        <label className="flex items-center gap-2 text-stone-600 dark:text-stone-400 cursor-pointer">
+        <label className="flex items-center gap-2 text-stone-600 dark:text-stone-400 cursor-pointer select-none">
           <input
             type="checkbox"
             checked={rememberMe}
             onChange={(e) => setRememberMe(e.target.checked)}
-            className="w-4 h-4 text-orange-600 bg-stone-100 border-stone-300 rounded focus:ring-orange-500 dark:bg-stone-800 dark:border-stone-700 cursor-pointer"
+            className="appearance-none w-4 h-4 rounded border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 checked:bg-orange-600 dark:checked:bg-orange-600 checked:border-orange-600 dark:checked:border-orange-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 cursor-pointer transition-colors bg-no-repeat bg-center"
           />
           <span>{t('auth.rememberDevice')}</span>
         </label>
-        <span className="text-stone-400 dark:text-stone-500 text-[11px]">
+        <span className="text-stone-400 dark:text-stone-500 text-[11px] select-none">
           {t('auth.protectedByRbac')}
         </span>
       </div>
@@ -119,7 +136,7 @@ export const LoginForm = ({ onSubmit, isLoading, errorMessage }: LoginFormProps)
       <button
         type="submit"
         disabled={isLoading}
-        className="w-full py-2.5 px-4 bg-orange-600 hover:bg-orange-700 active:bg-orange-800 text-white font-semibold text-sm rounded-lg shadow-sm hover:shadow transition-colors flex justify-center items-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+        className="w-full py-2.5 px-4 bg-orange-600 hover:bg-orange-700 active:bg-orange-800 active:scale-[0.99] text-white font-semibold text-sm rounded-lg shadow-sm hover:shadow transition-all flex justify-center items-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-stone-900"
       >
         {isLoading ? (
           <>

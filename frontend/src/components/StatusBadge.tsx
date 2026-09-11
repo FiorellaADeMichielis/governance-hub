@@ -25,7 +25,7 @@ export const StatusBadge = ({ status }: { status: string }) => {
   const displayLabel = labelMap[status] || status;
 
   return (
-    <span className={`px-2.5 py-1 text-xs font-semibold rounded-full border ${currentStyle}`}>
+    <span className={`inline-flex items-center select-none whitespace-nowrap px-2.5 py-1 text-xs font-semibold rounded-full border ${currentStyle}`}>
       {displayLabel}
     </span>
   );
