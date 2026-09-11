@@ -98,6 +98,16 @@ export interface TranslationSchema {
     statusRisky: string;
     statusUnderReview: string;
     statusPending: string;
+    complianceRateTitle: string;
+    complianceRateDesc: string;
+    evaluatedFlowsSummary: string;
+    statusBreakdown: string;
+    reviewActionTitle: string;
+    reviewActionDesc: string;
+    filterReviewBtn: string;
+    blockedActionTitle: string;
+    blockedActionDesc: string;
+    filterBlockedBtn: string;
   };
   governance: {
     title: string;
@@ -195,6 +205,24 @@ export interface TranslationSchema {
     incidentsDetected: string;
     adminDiagnosisTitle: string;
     adminDiagnosisSubtitle: string;
+    telemetryTitle: string;
+    telemetrySubtitle: string;
+    viewTraffic: string;
+    viewSecurity: string;
+    viewDual: string;
+    trafficBarLabel: string;
+    incidentBarLabel: string;
+    zeroIncidents: string;
+    incidentRate: string;
+    trafficShare: string;
+    totalEventsMetric: string;
+    blockedEventsMetric: string;
+    safeEventsMetric: string;
+    complianceScore: string;
+    topDepartments: string;
+    noEventsYet: string;
+    inspectingConnector: string;
+    allConnectors: string;
   };
   auditLogs: {
     title: string;

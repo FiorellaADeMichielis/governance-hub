@@ -65,6 +65,8 @@ export const DashboardPage = ({ user, onLogout }: DashboardPageProps) => {
   const totalFlows = stats.total > 0 ? stats.total : flows.length;
   const blockedFlows = stats.total > 0 ? stats.blocked : flows.filter(f => f.status === 'BLOCKED').length;
   const riskyFlows = stats.total > 0 ? stats.risky : flows.filter(f => f.status === 'RISKY' || f.status === 'UNDER_REVIEW').length;
+  const approvedFlows = stats.total > 0 ? stats.approved : flows.filter(f => f.status === 'APPROVED').length;
+  const pendingFlows = stats.total > 0 ? stats.pending : flows.filter(f => f.status === 'PENDING').length;
 
   useEffect(() => {
     const socket = io('http://localhost:3000'); 
@@ -196,7 +198,17 @@ export const DashboardPage = ({ user, onLogout }: DashboardPageProps) => {
             </div>
           </div>
           
-          <MetricsCards total={totalFlows} risky={riskyFlows} blocked={blockedFlows} />
+          <MetricsCards 
+            total={totalFlows} 
+            risky={riskyFlows} 
+            blocked={blockedFlows}
+            approved={approvedFlows}
+            pending={pendingFlows}
+            onSelectFilter={(status) => {
+              setStatusFilter(status);
+              setPage(1);
+            }}
+          />
 
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-bold text-stone-900 dark:text-stone-50">{t('dashboard.activityTitle')}</h3>

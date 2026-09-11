@@ -11,6 +11,7 @@ import {
 import { useTranslation } from '../../i18n/useTranslation';
 import type { Flow } from '../FlowTable';
 import type { UserSession } from '../../types/auth.types';
+import { ConnectorTelemetryChart } from './ConnectorTelemetryChart';
 
 interface IntegrationsViewProps {
   flows?: Flow[];
@@ -246,6 +247,13 @@ export const IntegrationsView = ({ flows = [], stats, user }: IntegrationsViewPr
           </div>
         </div>
       )}
+
+      {/* Telemetría y Análisis Interactivo de Conectores */}
+      <ConnectorTelemetryChart
+        flows={flows}
+        stats={stats || { total: 0, blocked: 0, risky: 0, approved: 0, pending: 0, byPlatform: {} }}
+        onFilterConnector={(platformId) => setSelectedPlatform(platformId)}
+      />
 
       {/* Grid de Conectores */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
