@@ -179,9 +179,11 @@ export const DashboardPage = ({ user, onLogout }: DashboardPageProps) => {
         <>
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h2 className="text-2xl font-bold text-stone-900 dark:text-stone-50">{t('dashboard.overviewTitle')}</h2>
+              <h2 className="text-2xl font-bold text-stone-900 dark:text-stone-50">
+                {isAdmin ? t('dashboard.overviewTitle') : t('dashboard.userDashboardTitle')}
+              </h2>
               <p className="text-xs text-stone-500 dark:text-stone-400 mt-1">
-                {t('dashboard.overviewSubtitle')}
+                {isAdmin ? t('dashboard.overviewSubtitle') : t('dashboard.userDashboardSubtitle')}
               </p>
             </div>
 
@@ -204,6 +206,8 @@ export const DashboardPage = ({ user, onLogout }: DashboardPageProps) => {
             blocked={blockedFlows}
             approved={approvedFlows}
             pending={pendingFlows}
+            userRole={user.role}
+            departmentName={tDepartment(user.department)}
             onSelectFilter={(status) => {
               setStatusFilter(status);
               setPage(1);

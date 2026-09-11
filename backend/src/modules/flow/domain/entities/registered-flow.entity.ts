@@ -34,6 +34,14 @@ export class RegisteredFlow {
   getId(): string { return this.id; }
   getStatus(): FlowStatus { return this.status; }
   getRiskLevel(): RiskLevel { return this.riskLevel; }
+  getObservations(): string | null {
+    return (
+      this.metadata?.['blockReason'] ||
+      this.metadata?.['reviewReason'] ||
+      this.metadata?.['riskReason'] ||
+      null
+    );
+  }
 
   public setRiskLevel(level: RiskLevel): void {
     this.riskLevel = level;

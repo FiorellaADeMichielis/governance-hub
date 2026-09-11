@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, Patch, Param, UseGuards, Query, Inject, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Post, Body, Get, Patch, Param, UseGuards, Query, Inject, HttpCode, HttpStatus, Req } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { Roles } from '../../auth/infrastructure/decorators/roles.decorator';
@@ -28,18 +28,24 @@ export class FlowsController {
   @ApiBearerAuth()
   @UseGuards(AuthGuard('jwt'))
   @Get('stats')
-  async getFlowStats() {
-    return this.getFlowsUseCase.getStats();
+  async getFlowStats(@Req() req: any) {
+    const user = req.user;
+    const departmentId = user?.role === UserRole.ADMIN ? undefined : user?.department?.trim();
+    return this.getFlowsUseCase.getStats(departmentId);
   }
 
   @ApiBearerAuth()
   @UseGuards(AuthGuard('jwt'))
   @Get()
-  async getAllFlows(@Query() query: GetFlowsDto) {
+  async getAllFlows(@Req() req: any, @Query() query: GetFlowsDto) {
+    const user = req.user;
+    const departmentId = user?.role === UserRole.ADMIN ? undefined : user?.department?.trim();
+
     const result = await this.getFlowsUseCase.execute(
       query.page,
       query.limit,
-      query.status
+      query.status,
+      departmentId
     );
     return {
       data: result.data.map(flow => ({
@@ -48,6 +54,9 @@ export class FlowsController {
         departmentId: (flow as any).departmentId,
         status: flow.getStatus(),
         riskLevel: flow.getRiskLevel(),
+        flowName: (flow as any).metadata?.flowName || null,
+        author: (flow as any).metadata?.author || null,
+        observations: flow.getObservations(),
         createdAt: (flow as any).createdAt,
       })),
       meta: result.meta 

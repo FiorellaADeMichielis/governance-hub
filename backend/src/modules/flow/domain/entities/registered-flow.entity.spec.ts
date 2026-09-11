@@ -42,5 +42,13 @@ describe('RegisteredFlow Entity', () => {
     flow.markForReview('Aislamiento Preventivo de Finanzas', RiskLevel.MEDIUM);
     expect(flow.getStatus()).toBe(FlowStatus.UNDER_REVIEW);
     expect(flow.getRiskLevel()).toBe(RiskLevel.MEDIUM);
+    expect(flow.getObservations()).toBe('Aislamiento Preventivo de Finanzas');
+  });
+
+  it('deberia retornar el motivo de bloqueo en getObservations', () => {
+    const flow = new RegisteredFlow('124', 'zapier', 'marketing', FlowStatus.PENDING, RiskLevel.LOW, {});
+    flow.blockFlow('Regla de credenciales expuestas');
+    expect(flow.getStatus()).toBe(FlowStatus.BLOCKED);
+    expect(flow.getObservations()).toBe('Regla de credenciales expuestas');
   });
 });

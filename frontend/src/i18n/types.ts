@@ -108,6 +108,12 @@ export interface TranslationSchema {
     blockedActionTitle: string;
     blockedActionDesc: string;
     filterBlockedBtn: string;
+    observationsColumn: string;
+    noObservations: string;
+    userDashboardTitle: string;
+    userDashboardSubtitle: string;
+    userMetricsTitle: string;
+    userMetricsSubtitle: string;
   };
   governance: {
     title: string;
@@ -223,6 +229,27 @@ export interface TranslationSchema {
     noEventsYet: string;
     inspectingConnector: string;
     allConnectors: string;
+    userCatalogTitle: string;
+    userCatalogSubtitle: string;
+    userOverviewTitle: string;
+    userOverviewDesc: string;
+    userBadgeCertified: string;
+    userRecommendedFor: string;
+    userZapierBestFor: string;
+    userMakeBestFor: string;
+    usern8nBestFor: string;
+    userPowerAutomateBestFor: string;
+    userActiveAutomations: string;
+    userSimulateTitle: string;
+    userSimulateSubtitle: string;
+    userSimulateFlowName: string;
+    userSimulatePlaceholder: string;
+    userSimulateBtn: string;
+    userSimulateSending: string;
+    userSimulateSuccess: string;
+    userSimulateError: string;
+    userShowTechnicalDetails: string;
+    userHideTechnicalDetails: string;
   };
   auditLogs: {
     title: string;

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, ILike } from 'typeorm';
 import { IFlowRepository, FlowStats } from '../../domain/repositories/flow.repository.interface';
 import { RegisteredFlow } from '../../domain/entities/registered-flow.entity';
 import { FlowOrmEntity } from './orm-entities/flow.orm-entity';
@@ -39,8 +39,15 @@ export class FlowRepository implements IFlowRepository {
     await this.ormRepository.clear();
   }
 
-  async findWithFilters(skip: number, take: number, status?: FlowStatus): Promise<{ flows: RegisteredFlow[]; total: number }> {
-    const whereCondition = status ? { status } : {};
+  async findWithFilters(
+    skip: number, 
+    take: number, 
+    status?: FlowStatus,
+    departmentId?: string
+  ): Promise<{ flows: RegisteredFlow[]; total: number }> {
+    const whereCondition: any = {};
+    if (status) whereCondition.status = status;
+    if (departmentId) whereCondition.departmentId = ILike(departmentId.trim());
 
     const [ormEntities, total] = await this.ormRepository.findAndCount({
       where: whereCondition,
@@ -54,8 +61,9 @@ export class FlowRepository implements IFlowRepository {
     return { flows, total };
   }
 
-  async getStats(): Promise<FlowStats> {
-    const all = await this.ormRepository.find();
+  async getStats(departmentId?: string): Promise<FlowStats> {
+    const whereCondition: any = departmentId ? { departmentId: ILike(departmentId.trim()) } : {};
+    const all = await this.ormRepository.find({ where: whereCondition });
     const total = all.length;
     const blocked = all.filter((f) => f.status === FlowStatus.BLOCKED).length;
     const risky = all.filter((f) => f.status === FlowStatus.RISKY || f.status === FlowStatus.UNDER_REVIEW).length;

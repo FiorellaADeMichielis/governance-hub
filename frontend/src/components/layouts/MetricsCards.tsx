@@ -14,6 +14,8 @@ interface MetricsCardsProps {
   approved?: number;
   pending?: number;
   onSelectFilter?: (status: string) => void;
+  userRole?: 'ADMIN' | 'USER';
+  departmentName?: string;
 }
 
 export const MetricsCards = ({ 
@@ -22,9 +24,12 @@ export const MetricsCards = ({
   blocked, 
   approved = 0, 
   pending = 0,
-  onSelectFilter 
+  onSelectFilter,
+  userRole = 'ADMIN',
+  departmentName = '',
 }: MetricsCardsProps) => {
   const { t } = useTranslation();
+  const isUser = userRole === 'USER';
 
   // Cálculo preciso de tasa de conformidad
   const safeCount = Math.max(total - blocked, 0);
@@ -52,7 +57,9 @@ export const MetricsCards = ({
             <div className="flex items-center gap-2">
               <IconShieldCheck className="w-5 h-5 text-orange-600 dark:text-orange-400 shrink-0" />
               <h3 className="text-sm font-bold text-stone-900 dark:text-stone-50">
-                {t('dashboard.complianceRateTitle')}
+                {isUser 
+                  ? t('dashboard.userMetricsTitle', { department: departmentName })
+                  : t('dashboard.complianceRateTitle')}
               </h3>
             </div>
             <span className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-full border select-none ${
@@ -64,7 +71,9 @@ export const MetricsCards = ({
             </span>
           </div>
           <p className="text-xs text-stone-500 dark:text-stone-400 mt-1">
-            {t('dashboard.complianceRateDesc')}
+            {isUser
+              ? t('dashboard.userMetricsSubtitle')
+              : t('dashboard.complianceRateDesc')}
           </p>
         </div>
 
@@ -147,10 +156,10 @@ export const MetricsCards = ({
 
         {/* Micro-texto técnico al pie */}
         <div className="pt-2 border-t border-stone-100 dark:border-stone-700/60 text-xs text-stone-500 dark:text-stone-400 flex items-center justify-between">
-          <span>{t('dashboard.evaluatedFlowsSummary', { total })}</span>
+          <span>{isUser ? `${total} automatizaciones en tu área` : t('dashboard.evaluatedFlowsSummary', { total })}</span>
           <span className="font-mono text-[11px] text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
             <IconCheck className="w-3.5 h-3.5" />
-            <span>Auditoría en vivo</span>
+            <span>{isUser ? 'Tus flujos activos' : 'Auditoría en vivo'}</span>
           </span>
         </div>
       </div>

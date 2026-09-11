@@ -11,10 +11,15 @@ export class GetFlowsUseCase {
     private readonly flowRepository: IFlowRepository,
   ) {}
 
-  async execute(page: number = 1, limit: number = 10, status?: FlowStatus) {
+  async execute(
+    page: number = 1, 
+    limit: number = 10, 
+    status?: FlowStatus,
+    departmentId?: string
+  ) {
     const skip = (page - 1) * limit;
-    const { flows, total } = await this.flowRepository.findWithFilters(skip, limit, status);
-    const stats = await this.flowRepository.getStats();
+    const { flows, total } = await this.flowRepository.findWithFilters(skip, limit, status, departmentId);
+    const stats = await this.flowRepository.getStats(departmentId);
 
     return {
       data: flows,
@@ -27,7 +32,7 @@ export class GetFlowsUseCase {
     };
   }
 
-  async getStats(): Promise<FlowStats> {
-    return this.flowRepository.getStats();
+  async getStats(departmentId?: string): Promise<FlowStats> {
+    return this.flowRepository.getStats(departmentId);
   }
 }

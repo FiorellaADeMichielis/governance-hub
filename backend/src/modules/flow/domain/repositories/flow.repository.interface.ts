@@ -21,7 +21,8 @@ export interface IFlowRepository {
   findWithFilters(
     skip: number, 
     take: number, 
-    status?: FlowStatus
+    status?: FlowStatus,
+    departmentId?: string
   ): Promise<{ flows: RegisteredFlow[]; total: number }>;
-  getStats(): Promise<FlowStats>;
+  getStats(departmentId?: string): Promise<FlowStats>;
 }

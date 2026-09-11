@@ -60,6 +60,8 @@ export const IntegrationsView = ({ flows = [], stats, user }: IntegrationsViewPr
   const [copied, setCopied] = useState(false);
   const [testingId, setTestingId] = useState<string | null>(null);
   const [testNotice, setTestNotice] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  const [simulatedFlowName, setSimulatedFlowName] = useState('');
+  const [showTechnicalDetails, setShowTechnicalDetails] = useState(false);
 
   const connectors: ConnectorDefinition[] = [
     {
@@ -161,6 +163,53 @@ export const IntegrationsView = ({ flows = [], stats, user }: IntegrationsViewPr
     }
   };
 
+  const handleSimulateFlow = async () => {
+    setTestingId('simulate');
+    setTestNotice(null);
+
+    const platformPayloadId = selectedPlatform === 'power-automate' ? 'power_automate' : selectedPlatform;
+    const finalFlowName = simulatedFlowName.trim() || `Sincronización ${selectedPlatform.toUpperCase()} (${tDepartment(selectedDept)})`;
+
+    try {
+      const response = await fetch('http://localhost:3000/flows/webhook', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          platformId: platformPayloadId,
+          departmentId: selectedDept,
+          metadata: {
+            flowName: finalFlowName,
+            author: user?.email || 'user@governance.com',
+            trigger: 'manual.simulation',
+            action: 'governance.audit_check',
+          },
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+
+      setTestNotice({
+        type: 'success',
+        message: t('integrations.userSimulateSuccess'),
+      });
+      setSimulatedFlowName('');
+    } catch {
+      setTestNotice({
+        type: 'error',
+        message: t('integrations.userSimulateError'),
+      });
+    } finally {
+      setTestingId(null);
+      setTimeout(() => {
+        setTestNotice(null);
+      }, 6000);
+    }
+  };
+
   const targetPlatformId = selectedPlatform === 'power-automate' ? 'power_automate' : selectedPlatform;
   const samplePayload = `curl -X POST http://localhost:3000/flows/webhook \\
   -H "Content-Type: application/json" \\
@@ -186,10 +235,10 @@ export const IntegrationsView = ({ flows = [], stats, user }: IntegrationsViewPr
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl font-bold text-stone-900 dark:text-stone-50">
-            {t('integrations.title')}
+            {isAdmin ? t('integrations.title') : t('integrations.userCatalogTitle')}
           </h2>
           <p className="text-xs text-stone-500 dark:text-stone-400 mt-1">
-            {t('integrations.subtitle')}
+            {isAdmin ? t('integrations.subtitle') : t('integrations.userCatalogSubtitle')}
           </p>
         </div>
 
@@ -203,7 +252,7 @@ export const IntegrationsView = ({ flows = [], stats, user }: IntegrationsViewPr
             {isAdmin ? (
               <span className="text-orange-600 dark:text-orange-400">Admin Mode</span>
             ) : (
-              <span className="text-blue-600 dark:text-blue-400">Self-Service Portal</span>
+              <span className="text-blue-600 dark:text-blue-400 capitalize">{tDepartment(selectedDept)}</span>
             )}
           </div>
         </div>
@@ -225,13 +274,21 @@ export const IntegrationsView = ({ flows = [], stats, user }: IntegrationsViewPr
         </div>
       )}
 
-      {/* Guía visual para usuario no-admin */}
+      {/* Guía visual y contexto para usuario no-admin */}
       {!isAdmin && (
         <div className="p-5 bg-blue-50/60 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-900/40 rounded-xl space-y-3">
-          <h3 className="text-xs font-bold text-blue-950 dark:text-blue-300 uppercase tracking-wider">
-            {t('integrations.userGuideTitle')}
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs text-blue-900/80 dark:text-blue-300/80">
+          <div className="flex items-center justify-between">
+            <h3 className="text-xs font-bold text-blue-950 dark:text-blue-300 uppercase tracking-wider">
+              {t('integrations.userOverviewTitle')}
+            </h3>
+            <span className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-300 border border-blue-200 dark:border-blue-800 capitalize">
+              {tDepartment(selectedDept)}
+            </span>
+          </div>
+          <p className="text-xs text-blue-900/80 dark:text-blue-200/80 leading-relaxed">
+            {t('integrations.userOverviewDesc')}
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-2 text-xs text-blue-900/90 dark:text-blue-200/90">
             <div className="flex items-start gap-2.5">
               <span className="w-5 h-5 rounded-full bg-blue-200 dark:bg-blue-900/60 text-blue-800 dark:text-blue-200 flex items-center justify-center font-bold text-[11px] shrink-0">1</span>
               <span>{t('integrations.userStep1')}</span>
@@ -248,12 +305,14 @@ export const IntegrationsView = ({ flows = [], stats, user }: IntegrationsViewPr
         </div>
       )}
 
-      {/* Telemetría y Análisis Interactivo de Conectores */}
-      <ConnectorTelemetryChart
-        flows={flows}
-        stats={stats || { total: 0, blocked: 0, risky: 0, approved: 0, pending: 0, byPlatform: {} }}
-        onFilterConnector={(platformId) => setSelectedPlatform(platformId)}
-      />
+      {/* Telemetría y Análisis Interactivo de Conectores (Exclusivo Administrador) */}
+      {isAdmin && (
+        <ConnectorTelemetryChart
+          flows={flows}
+          stats={stats || { total: 0, blocked: 0, risky: 0, approved: 0, pending: 0, byPlatform: {} }}
+          onFilterConnector={(platformId) => setSelectedPlatform(platformId)}
+        />
+      )}
 
       {/* Grid de Conectores */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -288,6 +347,11 @@ export const IntegrationsView = ({ flows = [], stats, user }: IntegrationsViewPr
                     <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
                     {t('integrations.incidentsDetected', { count: blocked })}
                   </span>
+                ) : !isAdmin ? (
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-semibold text-emerald-700 bg-emerald-100 dark:bg-emerald-500/20 dark:text-emerald-400 rounded-full select-none whitespace-nowrap">
+                    <IconCheck className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
+                    {t('integrations.userBadgeCertified')}
+                  </span>
                 ) : (
                   <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-semibold text-emerald-700 bg-emerald-100 dark:bg-emerald-500/20 dark:text-emerald-400 rounded-full select-none whitespace-nowrap">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
@@ -300,21 +364,50 @@ export const IntegrationsView = ({ flows = [], stats, user }: IntegrationsViewPr
                 {t(`integrations.${c.descriptionKey}` as any)}
               </p>
 
-              {/* Métricas dinámicas calculadas */}
-              <div className="mt-4 pt-3 border-t border-stone-100 dark:border-stone-700/60 grid grid-cols-3 gap-2 text-center text-xs select-none">
-                <div className="bg-stone-50 dark:bg-neutral-900/50 p-2 rounded-lg">
-                  <div className="text-[10px] text-stone-500 dark:text-stone-400 font-medium">{t('integrations.eventsProcessed')}</div>
-                  <div className="font-bold tabular-nums tracking-tight text-stone-900 dark:text-stone-100 mt-0.5">{total}</div>
+              {/* Recomendación amigable para usuario no-admin */}
+              {!isAdmin && (
+                <div className="mt-3 p-2.5 rounded-lg bg-stone-50 dark:bg-neutral-900/60 border border-stone-100 dark:border-stone-700/60 text-xs">
+                  <span className="text-[10px] font-semibold text-stone-500 dark:text-stone-400 uppercase tracking-wider block">
+                    {t('integrations.userRecommendedFor')}
+                  </span>
+                  <span className="text-stone-800 dark:text-stone-200 text-xs mt-0.5 block">
+                    {c.id === 'zapier' && t('integrations.userZapierBestFor')}
+                    {c.id === 'make' && t('integrations.userMakeBestFor')}
+                    {c.id === 'n8n' && t('integrations.usern8nBestFor')}
+                    {c.id === 'power-automate' && t('integrations.userPowerAutomateBestFor')}
+                  </span>
                 </div>
-                <div className="bg-stone-50 dark:bg-neutral-900/50 p-2 rounded-lg">
-                  <div className="text-[10px] text-stone-500 dark:text-stone-400 font-medium">{t('integrations.avgLatency')}</div>
-                  <div className="font-bold tabular-nums tracking-tight text-stone-900 dark:text-stone-100 mt-0.5">{c.avgLatency}</div>
+              )}
+
+              {/* Pie de métricas: técnico para Admin, simplificado para Usuario */}
+              {!isAdmin ? (
+                <div className="mt-4 pt-3 border-t border-stone-100 dark:border-stone-700/60 flex items-center justify-between text-xs select-none">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                    <span className="text-stone-600 dark:text-stone-400 font-medium">
+                      {t('integrations.userActiveAutomations', { count: total })}
+                    </span>
+                  </div>
+                  <span className="text-[11px] font-semibold text-stone-400 dark:text-stone-500">
+                    {isSelected ? 'Conector Activo' : 'Seleccionar'}
+                  </span>
                 </div>
-                <div className="bg-stone-50 dark:bg-neutral-900/50 p-2 rounded-lg">
-                  <div className="text-[10px] text-stone-500 dark:text-stone-400 font-medium">{t('integrations.security')}</div>
-                  <div className="font-bold text-emerald-600 dark:text-emerald-400 mt-0.5 text-[11px]">HMAC / SHA</div>
+              ) : (
+                <div className="mt-4 pt-3 border-t border-stone-100 dark:border-stone-700/60 grid grid-cols-3 gap-2 text-center text-xs select-none">
+                  <div className="bg-stone-50 dark:bg-neutral-900/50 p-2 rounded-lg">
+                    <div className="text-[10px] text-stone-500 dark:text-stone-400 font-medium">{t('integrations.eventsProcessed')}</div>
+                    <div className="font-bold tabular-nums tracking-tight text-stone-900 dark:text-stone-100 mt-0.5">{total}</div>
+                  </div>
+                  <div className="bg-stone-50 dark:bg-neutral-900/50 p-2 rounded-lg">
+                    <div className="text-[10px] text-stone-500 dark:text-stone-400 font-medium">{t('integrations.avgLatency')}</div>
+                    <div className="font-bold tabular-nums tracking-tight text-stone-900 dark:text-stone-100 mt-0.5">{c.avgLatency}</div>
+                  </div>
+                  <div className="bg-stone-50 dark:bg-neutral-900/50 p-2 rounded-lg">
+                    <div className="text-[10px] text-stone-500 dark:text-stone-400 font-medium">{t('integrations.security')}</div>
+                    <div className="font-bold text-emerald-600 dark:text-emerald-400 mt-0.5 text-[11px]">HMAC / SHA</div>
+                  </div>
                 </div>
-              </div>
+              )}
 
               {/* Herramienta de prueba exclusiva de Admin */}
               {isAdmin && (
@@ -350,81 +443,178 @@ export const IntegrationsView = ({ flows = [], stats, user }: IntegrationsViewPr
         })}
       </div>
 
-      {/* Especificación de Webhook y Generador cURL */}
-      <div className="p-5 bg-white dark:bg-stone-800 rounded-xl border border-stone-200 dark:border-stone-700 shadow-sm space-y-4 overflow-hidden">
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
-          <div className="min-w-0">
-            <div className="flex items-center gap-2">
-              <IconZap className="w-4 h-4 text-orange-600 dark:text-orange-400 shrink-0" />
-              <h3 className="text-sm font-bold text-stone-900 dark:text-stone-50">
-                {t('integrations.webhookTitle')}
-              </h3>
+      {/* Sección Inferior: Simulador Amigable para Usuario vs Generador cURL para Admin */}
+      {!isAdmin ? (
+        <div className="p-5 bg-white dark:bg-stone-800 rounded-xl border border-stone-200 dark:border-stone-700 shadow-sm space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <div className="flex items-center gap-2">
+                <IconZap className="w-4 h-4 text-orange-600 dark:text-orange-400 shrink-0" />
+                <h3 className="text-sm font-bold text-stone-900 dark:text-stone-50">
+                  {t('integrations.userSimulateTitle')}
+                </h3>
+              </div>
+              <p className="text-xs text-stone-500 dark:text-stone-400 mt-0.5">
+                {t('integrations.userSimulateSubtitle')}
+              </p>
             </div>
-            <p 
-              className="text-xs text-stone-500 dark:text-stone-400 mt-0.5" 
-              dangerouslySetInnerHTML={{ __html: t('integrations.webhookSubtitle') }}
-            />
+            <div className="px-2.5 py-1 bg-stone-100 dark:bg-stone-700 rounded-lg text-[11px] font-semibold text-stone-700 dark:text-stone-300 capitalize">
+              {tDepartment(selectedDept)}
+            </div>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2.5">
-            {/* Selector de Departamento */}
-            <div className="flex items-center gap-2">
-              <label htmlFor="deptSelect" className="text-xs text-stone-500 dark:text-stone-400 whitespace-nowrap">
-                {t('integrations.departmentSelect')}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-end gap-3 pt-1">
+            <div className="flex-1 space-y-1">
+              <label htmlFor="simulateFlowName" className="text-xs font-medium text-stone-700 dark:text-stone-300">
+                {t('integrations.userSimulateFlowName')}
               </label>
-              <select
-                id="deptSelect"
-                value={selectedDept}
-                onChange={(e) => setSelectedDept(e.target.value)}
-                className="pl-2.5 pr-8 py-1.5 bg-stone-50 dark:bg-neutral-900 border border-stone-200 dark:border-stone-700 text-stone-800 dark:text-stone-200 text-xs rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500/20 focus-visible:border-orange-500 transition-colors capitalize cursor-pointer"
-              >
-                {CANONICAL_DEPARTMENTS.map((dept) => (
-                  <option key={dept} value={dept}>
-                    {tDepartment(dept)}
-                  </option>
-                ))}
-              </select>
+              <input
+                id="simulateFlowName"
+                type="text"
+                value={simulatedFlowName}
+                onChange={(e) => setSimulatedFlowName(e.target.value)}
+                placeholder={t('integrations.userSimulatePlaceholder')}
+                className="w-full px-3 py-2 bg-stone-50 dark:bg-neutral-900 border border-stone-200 dark:border-stone-700 rounded-lg text-xs text-stone-900 dark:text-stone-100 placeholder-stone-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500"
+              />
             </div>
-
             <button
               type="button"
-              onClick={copyToClipboard}
-              className="px-3 py-1.5 text-xs font-semibold bg-stone-100 hover:bg-stone-200 dark:bg-stone-700 dark:hover:bg-stone-600 text-stone-800 dark:text-stone-200 rounded-lg transition-colors flex items-center gap-1.5 shadow-xs cursor-pointer select-none active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 whitespace-nowrap"
+              disabled={testingId === 'simulate'}
+              onClick={handleSimulateFlow}
+              className="px-4 py-2 bg-orange-600 hover:bg-orange-700 disabled:opacity-60 text-white text-xs font-semibold rounded-lg transition-colors flex items-center justify-center gap-2 shadow-xs cursor-pointer select-none active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 whitespace-nowrap"
             >
-              {copied ? (
+              {testingId === 'simulate' ? (
                 <>
-                  <IconCheck className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
-                  <span>{t('integrations.copied')}</span>
+                  <svg className="animate-spin h-3.5 w-3.5 text-white" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  <span>{t('integrations.userSimulateSending')}</span>
                 </>
               ) : (
                 <>
-                  <IconCopy className="w-3.5 h-3.5 shrink-0" />
-                  <span>{t('integrations.copyCurl')}</span>
+                  <IconPlay className="w-3.5 h-3.5" />
+                  <span>{t('integrations.userSimulateBtn')}</span>
                 </>
               )}
             </button>
           </div>
-        </div>
 
-        <pre className="p-3.5 bg-neutral-950 text-stone-200 text-xs font-mono rounded-lg overflow-x-auto border border-stone-800 leading-relaxed max-w-full">
-          {samplePayload}
-        </pre>
+          {/* Toggle de detalles técnicos para soporte o usuarios avanzados */}
+          <div className="pt-2 border-t border-stone-100 dark:border-stone-700/60">
+            <button
+              type="button"
+              onClick={() => setShowTechnicalDetails(!showTechnicalDetails)}
+              className="text-xs font-medium text-stone-500 dark:text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 transition-colors flex items-center gap-1.5 cursor-pointer"
+            >
+              <span>{showTechnicalDetails ? t('integrations.userHideTechnicalDetails') : t('integrations.userShowTechnicalDetails')}</span>
+            </button>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 text-xs">
-          <div className="flex items-center gap-2 text-stone-600 dark:text-stone-400">
-            <IconCheck className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
-            <span>{t('integrations.bullet1')}</span>
-          </div>
-          <div className="flex items-center gap-2 text-stone-600 dark:text-stone-400">
-            <IconCheck className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
-            <span>{t('integrations.bullet2')}</span>
-          </div>
-          <div className="flex items-center gap-2 text-stone-600 dark:text-stone-400">
-            <IconCheck className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
-            <span>{t('integrations.bullet3')}</span>
+            {showTechnicalDetails && (
+              <div className="mt-3 space-y-3 animate-fadeIn">
+                <pre className="p-3.5 bg-neutral-950 text-stone-200 text-xs font-mono rounded-lg overflow-x-auto border border-stone-800 leading-relaxed max-w-full">
+                  {samplePayload}
+                </pre>
+                <div className="flex justify-end">
+                  <button
+                    type="button"
+                    onClick={copyToClipboard}
+                    className="px-3 py-1.5 text-xs font-semibold bg-stone-100 hover:bg-stone-200 dark:bg-stone-700 dark:hover:bg-stone-600 text-stone-800 dark:text-stone-200 rounded-lg transition-colors flex items-center gap-1.5 shadow-xs cursor-pointer select-none active:scale-[0.98]"
+                  >
+                    {copied ? (
+                      <>
+                        <IconCheck className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                        <span>{t('integrations.copied')}</span>
+                      </>
+                    ) : (
+                      <>
+                        <IconCopy className="w-3.5 h-3.5 shrink-0" />
+                        <span>{t('integrations.copyCurl')}</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
-      </div>
+      ) : (
+        /* Especificación de Webhook y Generador cURL para Administradores */
+        <div className="p-5 bg-white dark:bg-stone-800 rounded-xl border border-stone-200 dark:border-stone-700 shadow-sm space-y-4 overflow-hidden">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+            <div className="min-w-0">
+              <div className="flex items-center gap-2">
+                <IconZap className="w-4 h-4 text-orange-600 dark:text-orange-400 shrink-0" />
+                <h3 className="text-sm font-bold text-stone-900 dark:text-stone-50">
+                  {t('integrations.webhookTitle')}
+                </h3>
+              </div>
+              <p 
+                className="text-xs text-stone-500 dark:text-stone-400 mt-0.5" 
+                dangerouslySetInnerHTML={{ __html: t('integrations.webhookSubtitle') }}
+              />
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2.5">
+              {/* Selector de Departamento */}
+              <div className="flex items-center gap-2">
+                <label htmlFor="deptSelect" className="text-xs text-stone-500 dark:text-stone-400 whitespace-nowrap">
+                  {t('integrations.departmentSelect')}
+                </label>
+                <select
+                  id="deptSelect"
+                  value={selectedDept}
+                  onChange={(e) => setSelectedDept(e.target.value)}
+                  className="pl-2.5 pr-8 py-1.5 bg-stone-50 dark:bg-neutral-900 border border-stone-200 dark:border-stone-700 text-stone-800 dark:text-stone-200 text-xs rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500/20 focus-visible:border-orange-500 transition-colors capitalize cursor-pointer"
+                >
+                  {CANONICAL_DEPARTMENTS.map((dept) => (
+                    <option key={dept} value={dept}>
+                      {tDepartment(dept)}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <button
+                type="button"
+                onClick={copyToClipboard}
+                className="px-3 py-1.5 text-xs font-semibold bg-stone-100 hover:bg-stone-200 dark:bg-stone-700 dark:hover:bg-stone-600 text-stone-800 dark:text-stone-200 rounded-lg transition-colors flex items-center gap-1.5 shadow-xs cursor-pointer select-none active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 whitespace-nowrap"
+              >
+                {copied ? (
+                  <>
+                    <IconCheck className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                    <span>{t('integrations.copied')}</span>
+                  </>
+                ) : (
+                  <>
+                    <IconCopy className="w-3.5 h-3.5 shrink-0" />
+                    <span>{t('integrations.copyCurl')}</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+
+          <pre className="p-3.5 bg-neutral-950 text-stone-200 text-xs font-mono rounded-lg overflow-x-auto border border-stone-800 leading-relaxed max-w-full">
+            {samplePayload}
+          </pre>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 text-xs">
+            <div className="flex items-center gap-2 text-stone-600 dark:text-stone-400">
+              <IconCheck className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+              <span>{t('integrations.bullet1')}</span>
+            </div>
+            <div className="flex items-center gap-2 text-stone-600 dark:text-stone-400">
+              <IconCheck className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+              <span>{t('integrations.bullet2')}</span>
+            </div>
+            <div className="flex items-center gap-2 text-stone-600 dark:text-stone-400">
+              <IconCheck className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+              <span>{t('integrations.bullet3')}</span>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -7,6 +7,9 @@ export interface Flow {
   departmentId: string;
   status: string;
   riskLevel: string;
+  flowName?: string | null;
+  author?: string | null;
+  observations?: string | null;
 }
 
 export interface FlowTableProps {
@@ -39,39 +42,88 @@ export const FlowTable = ({
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="bg-stone-100 dark:bg-neutral-900 border-b border-stone-200 dark:border-stone-700 text-stone-500 dark:text-stone-400 text-xs uppercase tracking-wider transition-colors select-none">
-              <th className="p-4 font-semibold">{t('dashboard.platformColumn')}</th>
-              <th className="p-4 font-semibold">{t('dashboard.departmentColumn')}</th>
-              <th className="p-4 font-semibold">{t('dashboard.statusColumn')}</th>
-              <th className="p-4 font-semibold text-right">{t('dashboard.actionsColumn')}</th>
+              <th className="p-4 font-semibold min-w-[200px] max-w-[260px]">{t('dashboard.platformColumn')}</th>
+              <th className="p-4 font-semibold w-32">{t('dashboard.departmentColumn')}</th>
+              <th className="p-4 font-semibold w-36">{t('dashboard.statusColumn')}</th>
+              <th className="p-4 font-semibold min-w-[220px]">{t('dashboard.observationsColumn')}</th>
+              <th className="p-4 font-semibold text-right w-44 min-w-[170px]">{t('dashboard.actionsColumn')}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-stone-200 dark:divide-stone-700">
             {isLoading ? (
-              <tr><td colSpan={4} className="p-8 text-center text-stone-500 dark:text-stone-400">{t('dashboard.loadingFlows')}</td></tr>
+              <tr><td colSpan={5} className="p-8 text-center text-stone-500 dark:text-stone-400">{t('dashboard.loadingFlows')}</td></tr>
             ) : flows.length === 0 ? (
-              <tr><td colSpan={4} className="p-8 text-center text-stone-500 dark:text-stone-400">{t('dashboard.emptyFlows')}</td></tr>
+              <tr><td colSpan={5} className="p-8 text-center text-stone-500 dark:text-stone-400">{t('dashboard.emptyFlows')}</td></tr>
             ) : (
               flows.map((flow) => (
                 <tr key={flow.id} className="hover:bg-stone-50 dark:hover:bg-neutral-800/60 transition-colors">
-                  <td className="p-4 font-medium text-stone-900 dark:text-stone-50 capitalize">{flow.platformId}</td>
-                  <td className="p-4 text-stone-600 dark:text-stone-400 capitalize">{tDepartment(flow.departmentId)}</td>
-                  <td className="p-4"><StatusBadge status={flow.status} /></td>
-                  <td className="p-4 text-right space-x-2">
+                  <td className="p-4 min-w-[200px] max-w-[260px]">
+                    <div className="font-semibold text-stone-900 dark:text-stone-50 text-xs truncate" title={flow.flowName || flow.platformId}>
+                      {flow.flowName || flow.platformId}
+                    </div>
+                    <div className="text-[11px] text-stone-500 dark:text-stone-400 capitalize mt-0.5 truncate">
+                      {flow.platformId} {flow.author ? `• ${flow.author}` : ''}
+                    </div>
+                  </td>
+                  <td className="p-4 text-stone-600 dark:text-stone-400 text-xs capitalize whitespace-nowrap w-32">
+                    {tDepartment(flow.departmentId)}
+                  </td>
+                  <td className="p-4 whitespace-nowrap w-36">
+                    <StatusBadge status={flow.status} />
+                  </td>
+                  <td className="p-4 min-w-[220px]">
                     {isAdmin ? (
-                      <>
+                      flow.observations ? (
+                        <p className="text-xs text-stone-700 dark:text-stone-300 leading-relaxed max-w-sm line-clamp-2" title={flow.observations}>
+                          {flow.observations}
+                        </p>
+                      ) : flow.status === 'APPROVED' ? (
+                        <span className="text-xs text-stone-400 dark:text-stone-500">
+                          {t('dashboard.noObservations')}
+                        </span>
+                      ) : (
+                        <span className="text-xs text-stone-400 dark:text-stone-500">—</span>
+                      )
+                    ) : (
+                      flow.observations ? (
+                        <div className={`p-2.5 rounded-lg text-xs leading-relaxed border ${
+                          flow.status === 'BLOCKED'
+                            ? 'bg-red-50 dark:bg-red-500/10 border-red-200 dark:border-red-500/20 text-red-800 dark:text-red-300'
+                            : flow.status === 'UNDER_REVIEW' || flow.status === 'RISKY'
+                            ? 'bg-amber-50 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/20 text-amber-800 dark:text-amber-300'
+                            : 'bg-stone-50 dark:bg-neutral-900 border-stone-200 dark:border-stone-700 text-stone-700 dark:text-stone-300'
+                        }`}>
+                          <span className="font-semibold block text-[10px] uppercase tracking-wider mb-0.5">
+                            {flow.status === 'BLOCKED' ? 'Motivo de Bloqueo:' : 'Observación:'}
+                          </span>
+                          <span>{flow.observations}</span>
+                        </div>
+                      ) : flow.status === 'APPROVED' ? (
+                        <span className="inline-flex items-center gap-1.5 text-xs text-emerald-700 dark:text-emerald-400 font-medium">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                          <span>{t('dashboard.noObservations')}</span>
+                        </span>
+                      ) : (
+                        <span className="text-xs text-stone-400 dark:text-stone-500">—</span>
+                      )
+                    )}
+                  </td>
+                  <td className="p-4 text-right whitespace-nowrap w-44 min-w-[170px]">
+                    {isAdmin ? (
+                      <div className="inline-flex items-center justify-end gap-1.5">
                         {(flow.status === 'PENDING' || flow.status === 'UNDER_REVIEW') && (
                           <>
                             <button 
                               type="button"
                               onClick={() => onReviewAction(flow.id, 'APPROVE')}
-                              className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-green-200 dark:border-green-500/20 bg-green-50 dark:bg-green-500/10 text-green-700 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-500/20 transition-all cursor-pointer select-none active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
+                              className="px-2.5 py-1 text-xs font-semibold rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400 dark:hover:bg-emerald-900/50 border border-emerald-200/80 dark:border-emerald-800/60 transition-colors cursor-pointer select-none active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
                             >
                               {t('dashboard.approveAction')}
                             </button>
                             <button 
                               type="button"
                               onClick={() => onReviewAction(flow.id, 'BLOCK')}
-                              className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-red-200 dark:border-red-500/20 bg-red-50 dark:bg-red-500/10 text-red-700 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-500/20 transition-all cursor-pointer select-none active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
+                              className="px-2.5 py-1 text-xs font-medium rounded-lg bg-white hover:bg-red-50 text-stone-600 hover:text-red-700 dark:bg-stone-800 dark:text-stone-300 dark:hover:bg-red-950/40 dark:hover:text-red-400 border border-stone-200 hover:border-red-200 dark:border-stone-700 dark:hover:border-red-800/60 transition-colors cursor-pointer select-none active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
                             >
                               {t('dashboard.blockAction')}
                             </button>
@@ -82,12 +134,12 @@ export const FlowTable = ({
                           <button 
                             type="button"
                             onClick={() => onReviewAction(flow.id, 'MARK_REVIEW')}
-                            className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-orange-200 dark:border-orange-500/20 bg-orange-50 dark:bg-orange-500/10 text-orange-700 dark:text-orange-400 hover:bg-orange-100 dark:hover:bg-orange-500/20 transition-all cursor-pointer select-none active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500"
+                            className="px-2.5 py-1 text-xs font-medium rounded-lg bg-white hover:bg-amber-50 text-stone-600 hover:text-amber-800 dark:bg-stone-800 dark:text-stone-300 dark:hover:bg-amber-950/40 dark:hover:text-amber-300 border border-stone-200 hover:border-amber-200 dark:border-stone-700 dark:hover:border-amber-800/60 transition-colors cursor-pointer select-none active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
                           >
                             {t('dashboard.reviewAction')}
                           </button>
                         )}
-                      </>
+                      </div>
                     ) : (
                       <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium text-stone-400 dark:text-stone-500 bg-stone-100 dark:bg-neutral-900 border border-stone-200 dark:border-stone-700/60 select-none">
                         {t('dashboard.readOnlyBadge')}
